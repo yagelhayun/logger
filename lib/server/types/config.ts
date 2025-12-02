@@ -1,0 +1,103 @@
+import { Request } from './framework';
+import { LogLevel, LogMetadata } from './internal';
+
+export type MiddlewareConfig<TReq extends Request = any> = {
+	/**
+	 * Enables request metadata to be appended to every log. Includes HTTP method (GET/POST etc.) and endpoint.
+	 *
+	 * @default true
+	 */
+	enableRequestMetadata: boolean;
+	/**
+	 * Enables internal request logs. Includes a response message that specifies the requests duration.
+	 *
+	 * @default true
+	 */
+	enableRequestLogging: boolean;
+	/**
+	 * Override the default message printed when a request arrives to the server. Will be silenced if `enableInternalLogs` is off.
+	 *
+	 * @default 'Request started'
+	 */
+	customReceivedMessage: string;
+	/**
+	 * Override the default message printed when a request is finished. Will be silenced if `enableInternalLogs` is off.
+	 *
+	 * @default 'Request finished'
+	 */
+	customFinishedMessage: string;
+	/**
+	 * Override the default request id label in each log.
+	 *
+	 * @default 'requestId'
+	 */
+	requestIdLogLabel: string;
+	/**
+	 * Appends all properties to every log throughout the whole request lifecycle.
+	 * Can be useful for things like `realityId`, `userDetails`, `operationName` and more.
+	 *
+	 * @param {TReq} req Should be used to extract any metadata from the request
+	 * @returns {LogMetadata}
+	 */
+	customProps?: (req: TReq) => LogMetadata | undefined;
+	/**
+	 * Appends request id to every log throughout the whole request lifecycle.
+	 *
+	 * @default uuid
+	 * @param {TReq} req Can be used in cases where you want to reuse a request id from a header or the body
+	 * @returns {string}
+	 */
+	generateRequestId?: (req: TReq) => string | undefined;
+};
+
+export type RouteConfig<TReq extends Request = any> = {
+	/**
+	 * Enables and exposes the route
+	 *
+	 * @default false
+	 */
+	enabled: boolean;
+	/**
+	 * The endpoint to be exposed for client logs
+	 *
+	 * @default '/logger/write'
+	 */
+	endpoint: string;
+	/**
+	 * Function that resolves to an 'origin' metadata, to be appended to each external log
+	 *
+	 * @default 'client'
+	 */
+	origin?: (req: TReq) => string | undefined;
+};
+
+export type WebFrameworkConfig<TReq extends Request = any> = {
+	/**
+	 * Route that handles printing logs sent from a client
+	 * Disabled by default
+	 */
+	route: RouteConfig<TReq>;
+	/**
+	 * Middleware that expands the capabilities of your logger
+	 */
+	middleware: MiddlewareConfig<TReq>;
+};
+
+export type LoggerConfig = {
+	/**
+	 * Lowest level of printing logs. For example, when setting this to `warn`, any `debug`/`info` logs will be ignored and not printed.
+	 *
+	 * @default 'info'
+	 */
+	minLogLevel: LogLevel;
+	/**
+	 * Default metadata to be appended to every log. Common use cases are `systemName (Warrior)`, `serviceName (user-service)`.
+	 */
+	defaultMetadata: LogMetadata;
+	/**
+	 * If set to `true`, will print human readable logs. Be cautious setting this, as it can break your logs in production.
+	 *
+	 * @default false
+	 */
+	isLocal: boolean;
+};
