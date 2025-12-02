@@ -1,21 +1,23 @@
 {
-  "compilerOptions": {
-    "target": "ES2015",
-    "module": "commonjs",
-    "declaration": true,
-    "outDir": "dist",
-    "stripInternal": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "skipDefaultLibCheck": true,
-    "skipLibCheck": true
-  }
+	"compilerOptions": {
+		"target": "ES2015",
+		"module": "commonjs",
+		"declaration": true,
+		"outDir": "dist",
+		"stripInternal": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"strictBindCallApply": true,
+		"strictPropertyInitialization": true,
+		"noImplicitThis": true,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"skipDefaultLibCheck": true,
+		"skipLibCheck": true
+	},
+	"include": ["lib/**/*"],
+	"exclude": ["dist", "node_modules"]
 }
