@@ -1,4 +1,4 @@
-# Fire & Attack Logger
+# Logger
 
 ## Motivation
 
