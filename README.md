@@ -13,7 +13,7 @@ Here we'll be covering everything that is exclusive to this library. For basic u
 You get started by creating a logger using `createLogger`:
 
 ```js
-import { createLogger, Logger } from '@fireattack/logger';
+import { createLogger, Logger } from '@yagel1999/logger';
 
 const logger: Logger = createLogger({
 	isLocal: process.env.NODE_ENV === 'development',
