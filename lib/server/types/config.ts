@@ -91,7 +91,7 @@ export type LoggerConfig = {
 	 */
 	minLogLevel: LogLevel;
 	/**
-	 * Default metadata to be appended to every log. Common use cases are `systemName (Warrior)`, `serviceName (user-service)`.
+	 * Default metadata to be appended to every log. Common use cases are `systemName (Todolist)` or `serviceName (user-service)`.
 	 */
 	defaultMetadata: LogMetadata;
 	/**

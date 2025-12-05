@@ -1,4 +1,4 @@
-# Fire & Attack Logger
+# Logger
 
 ## Motivation
 
@@ -13,7 +13,7 @@ Here we'll be covering everything that is exclusive to this library. For basic u
 You get started by creating a logger using `createLogger`:
 
 ```js
-import { createLogger, Logger } from '@fireattack/logger';
+import { createLogger, Logger } from '@yagel1999/logger';
 
 const logger: Logger = createLogger({
 	isLocal: process.env.NODE_ENV === 'development',
@@ -28,12 +28,12 @@ A logger accepts the following parameters:
 | ----------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `isLocal`         | `false` | If set to `true`, will print human readable logs. Be cautious setting this, as it can break your logs in production              |
 | `minLogLevel`     | `info`  | Lowest level of printing logs. For example, when setting this to `warn`, any `debug`/`info` logs will be ignored and not printed |
-| `defaultMetadata` | `{}`    | Default metadata to be appended to every log. Common use cases are: `systemName (Warrior)`, `serviceName (user-service)`         |
+| `defaultMetadata` | `{}`    | Default metadata to be appended to every log. Common use cases are `systemName (TodoList)` or `serviceName (user-service)`       |
 
 ## Web Framework Usage
 
-This logger comes with full support for `express` and `fastify` web frameworks.
-The configurations themselves are identical for both the frameworks, but we'll use the `express` handler in our examples.
+This logger comes with full support for the `express` and `fastify` web frameworks.
+The configurations themselves are identical for both the frameworks, and here we'll uncover the use of the `express` handler.
 
 ### Logs Middleware
 
@@ -45,21 +45,21 @@ This can help distinguish between logs per request, which can eventually help yo
 Using `customProps` you can extract properties from anywhere in the request object and map it however you like.
 
 ```js
-import { applyExpressLogger } from '@fireattack/logger';
+import { applyExpressLogger } from '@yagel1999/logger';
 
 const app: Application = express();
 
 applyExpressLogger(app, {
 	middleware: {
 		customProps: (req) => ({
-			realityId: req.header('reality-id'),
+			entityId: req.header('entity-id'),
 			operationName: req.body.operationName
 		})
 	}
 });
 ```
 
-In the above example we've mapped `realityId` from the headers and `operationName` from the request body.
+In the above example we've mapped `entityId` from the headers and `operationName` from the request body.
 
 #### Appending request ID
 
@@ -68,7 +68,7 @@ Just like `customProps` you have the request object available to use, so you can
 If `generateRequestId` not provided or resolves to `undefined`, a new `uuid` will be generated as a fallback.
 
 ```js
-import { applyExpressLogger } from '@fireattack/logger';
+import { applyExpressLogger } from '@yagel1999/logger';
 
 const app: Application = express();
 
@@ -98,7 +98,7 @@ This is most beneficial for client applications, but you may use it in other way
 Each time you fetch this endpoint, it checks a strict schema and will not print out your logs if the criterions is not met.
 
 ```js
-import { applyExpressLogger } from '@fireattack/logger';
+import { applyExpressLogger } from '@yagel1999/logger';
 
 const app: Application = express();
 
@@ -106,7 +106,7 @@ applyExpressLogger(app, {
 	route: {
 		enabled: true,
 		endpoint: '/logs',
-		origin: 'warrior-client'
+		origin: 'todolist-client'
 	}
 });
 ```
@@ -140,7 +140,7 @@ This is done by wrapping your logic inside a function and passing it to `attachL
 Each time your logic gets executed, a new unique state is created. That state is attached to the current event in the event loop, so each event has its own state. When that event ends, its state is safely disposed.
 
 ```js
-import { attachLogContext } from '@fireattack/logger';
+import { attachLogContext } from '@yagel1999/logger';
 
 const main = () => {
     ...
@@ -161,7 +161,7 @@ you can start adding new metadata by using `setLogMetadata`:
 
 ```js
 import { v4 } from 'uuid';
-import { attachLogContext, setLogMetadata } from '@fireattack/logger';
+import { attachLogContext, setLogMetadata } from '@yagel1999/logger';
 import { logger } from './logger';
 
 const main = () => {
@@ -188,15 +188,15 @@ This can be useful for many cases:
 -   Adding results from a database query:
 
 ```js
-const realities = await query('SELECT reality from realities');
-setLogMetadata('realities', { realities });
+const entities = await query('SELECT entity_name from entities');
+setLogMetadata('entities', { entities });
 ```
 
 -   Adding results from an HTTP request:
 
 ```js
-const realities = await fetch('https://some_api/api/realities');
-setLogMetadata('realities', { realities });
+const entities = await fetch('https://some_api/api/entities');
+setLogMetadata('entities', { entities });
 ```
 
 -   Simply adding static data, but in a further point of your logic. For example after your code reaches a specific class, you would like to mark which entity is being processed.
