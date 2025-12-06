@@ -1,7 +1,5 @@
 import { z } from 'zod';
-import { levels, clientLogsSchema } from '../consts';
-
-export type LogLevel = (typeof levels)[number];
+import { clientLogsSchema } from '../consts';
 
 export type LogMetadata = Record<string, any>;
 

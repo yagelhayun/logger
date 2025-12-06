@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import { Logger } from 'winston';
+import { Logger } from '..';
 import {
 	ClientLogs,
 	WebFrameworkConfig,
@@ -10,7 +10,6 @@ import {
 	NextFunction,
 	RouteConfig
 } from '../types';
-import { loggerRef } from '../logger';
 import { clientLogsSchema } from '../consts';
 import { attachLogContext } from '../async_hooks';
 import { setLogMetadata } from '../logger/metadata';
@@ -18,7 +17,7 @@ import { setLogMetadata } from '../logger/metadata';
 /**
  * @internal
  */
-export const defaultConfig: WebFrameworkConfig = {
+export const defaultConfig: Required<WebFrameworkConfig> = {
 	middleware: {
 		enableRequestMetadata: true,
 		enableRequestLogging: true,
@@ -27,7 +26,6 @@ export const defaultConfig: WebFrameworkConfig = {
 		requestIdLogLabel: 'requestId'
 	},
 	route: {
-		enabled: false,
 		endpoint: '/logger/write'
 	}
 };
@@ -37,7 +35,7 @@ const setRequestMetadata = (
 	middlewareConfig: MiddlewareConfig
 ) => {
 	const customProps: LogMetadata = middlewareConfig.customProps?.(req) || {};
-	const requestId: string = middlewareConfig.generateRequestId?.(req) || v4();
+	const requestId: string = middlewareConfig.getRequestId?.(req) || v4();
 
 	Object.entries(customProps).forEach(([key, value]: [string, any]) => {
 		setLogMetadata(key, value);
@@ -69,18 +67,20 @@ export const requestLogContextMiddleware =
  * @internal
  */
 export const printExternalLogs =
-	(config: RouteConfig) => (req: Request, res: Response) => {
+	(logger: Logger, config: RouteConfig) => (req: Request, res: Response) => {
 		try {
-			const externalLogger: Logger | undefined = loggerRef?.child({
-				origin: config.origin?.(req) || 'client'
-			});
+			const origin = config.origin?.(req) || 'client';
 			const logs: ClientLogs = clientLogsSchema.parse(req.body);
 
-			logs.forEach(({ level, message, info, timestamp }) => {
-				externalLogger?.log(level, message, { ...info, timestamp });
+			logs.forEach(({ level, message, metadata, timestamp }) => {
+				logger.log(level, message, {
+					...metadata,
+					origin,
+					timestamp
+				});
 			});
 		} catch (error) {
-			loggerRef?.error(error);
+			logger.error(error);
 		} finally {
 			res.status(200).send('OK');
 		}

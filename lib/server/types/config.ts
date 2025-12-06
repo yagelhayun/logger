@@ -1,5 +1,6 @@
 import { Request } from './framework';
-import { LogLevel, LogMetadata } from './internal';
+import { LogMetadata } from './internal';
+import { LogLevel } from '../../common/types';
 
 export type MiddlewareConfig<TReq extends Request = any> = {
 	/**
@@ -34,7 +35,7 @@ export type MiddlewareConfig<TReq extends Request = any> = {
 	requestIdLogLabel: string;
 	/**
 	 * Appends all properties to every log throughout the whole request lifecycle.
-	 * Can be useful for things like `realityId`, `userDetails`, `operationName` and more.
+	 * Can be useful for things like `entityId`, `userDetails`, `operationName` and more.
 	 *
 	 * @param {TReq} req Should be used to extract any metadata from the request
 	 * @returns {LogMetadata}
@@ -47,24 +48,18 @@ export type MiddlewareConfig<TReq extends Request = any> = {
 	 * @param {TReq} req Can be used in cases where you want to reuse a request id from a header or the body
 	 * @returns {string}
 	 */
-	generateRequestId?: (req: TReq) => string | undefined;
+	getRequestId?: (req: TReq) => string | undefined;
 };
 
 export type RouteConfig<TReq extends Request = any> = {
 	/**
-	 * Enables and exposes the route
-	 *
-	 * @default false
-	 */
-	enabled: boolean;
-	/**
-	 * The endpoint to be exposed for client logs
+	 * The endpoint to be exposed for client logs.
 	 *
 	 * @default '/logger/write'
 	 */
 	endpoint: string;
 	/**
-	 * Function that resolves to an 'origin' metadata, to be appended to each external log
+	 * Function that resolves to an 'origin' metadata, to be appended to each external log.
 	 *
 	 * @default 'client'
 	 */
@@ -73,10 +68,11 @@ export type RouteConfig<TReq extends Request = any> = {
 
 export type WebFrameworkConfig<TReq extends Request = any> = {
 	/**
-	 * Route that handles printing logs sent from a client
-	 * Disabled by default
+	 * Route for printing logs sent from an external source.
+	 *
+	 * @default undefined
 	 */
-	route: RouteConfig<TReq>;
+	route?: RouteConfig<TReq>;
 	/**
 	 * Middleware that expands the capabilities of your logger
 	 */
@@ -85,17 +81,20 @@ export type WebFrameworkConfig<TReq extends Request = any> = {
 
 export type LoggerConfig = {
 	/**
-	 * Lowest level of printing logs. For example, when setting this to `warn`, any `debug`/`info` logs will be ignored and not printed.
+	 * Lowest level of printing logs.
+	 * For example, when setting this to `warn`, any `debug`/`info` logs will be ignored and not printed.
 	 *
 	 * @default 'info'
 	 */
 	minLogLevel: LogLevel;
 	/**
-	 * Default metadata to be appended to every log. Common use cases are `systemName (Todolist)` or `serviceName (user-service)`.
+	 * Default metadata to be appended to every log.
+	 * Common use cases are `systemName (Todolist)` or `serviceName (user-service)`.
 	 */
 	defaultMetadata: LogMetadata;
 	/**
-	 * If set to `true`, will print human readable logs. Be cautious setting this, as it can break your logs in production.
+	 * If set to `true`, will print human readable logs.
+	 * Be cautious setting this, as it can break your logs in production.
 	 *
 	 * @default false
 	 */

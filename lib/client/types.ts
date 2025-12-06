@@ -1,18 +1,14 @@
-import { LogLevel } from "../common/types";
+import { z } from 'zod';
+import { clientLogSchema } from '../common/consts';
 
 export type LoggerConfig = {
-	maxBufferSize: number;
+	bufferSize: number;
 	bufferFlushInterval: number;
 	logEndpoint: string;
 	getUserData?: () => any | undefined;
-}
+};
 
 /**
  * @internal
  */
-export type Log = {
-	message: string;
-	level: LogLevel;
-	timestamp: Date;
-	metadata: Record<string, any>;
-}
+export type Log = z.infer<typeof clientLogSchema>;

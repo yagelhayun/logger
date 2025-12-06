@@ -9,11 +9,13 @@ import {
 	printExternalLogs,
 	requestLogContextMiddleware
 } from './common';
-import { DeepPartial, WebFrameworkConfig, MiddlewareConfig } from '../types';
-import { loggerRef } from '../logger';
+import { Logger } from '..';
+import { WebFrameworkConfig, MiddlewareConfig, RouteConfig } from '../types';
+import { DeepPartial } from '../../common/types';
 
 const requestLoggingMiddleware = (
 	app: FastifyInstance,
+	logger: Logger,
 	config: MiddlewareConfig<FastifyRequest>
 ): void => {
 	app.addHook(
@@ -23,7 +25,7 @@ const requestLoggingMiddleware = (
 			_res: FastifyReply,
 			next: FastifyNextFunction
 		) => {
-			loggerRef?.info(config.customReceivedMessage);
+			logger.info(config.customReceivedMessage);
 			next();
 		}
 	).addHook(
@@ -33,10 +35,10 @@ const requestLoggingMiddleware = (
 			res: FastifyReply,
 			next: FastifyNextFunction
 		) => {
-			loggerRef?.info(config.customFinishedMessage, {
+			logger.info(config.customFinishedMessage, {
 				response: {
 					statusCode: res.statusCode,
-					duration: res.getResponseTime()
+					duration: res.elapsedTime
 				}
 			});
 			next();
@@ -46,26 +48,26 @@ const requestLoggingMiddleware = (
 
 export const applyFastifyLogger = (
 	app: FastifyInstance,
+	logger: Logger,
 	partialConfig?: DeepPartial<WebFrameworkConfig<FastifyRequest>>
 ) => {
-	const config: WebFrameworkConfig<FastifyRequest> = {
-		middleware: {
-			...defaultConfig.middleware,
-			...partialConfig?.middleware
-		},
-		route: {
-			...defaultConfig.route,
-			...partialConfig?.route
-		}
+	const middlewareConfig: MiddlewareConfig<FastifyRequest> = {
+		...defaultConfig.middleware,
+		...partialConfig?.middleware
 	};
 
-	app.addHook('onRequest', requestLogContextMiddleware(config.middleware));
+	const routeConfig: RouteConfig = {
+		...defaultConfig.route,
+		...partialConfig?.route
+	};
 
-	if (config.middleware.enableRequestLogging) {
-		requestLoggingMiddleware(app, config.middleware);
+	app.addHook('onRequest', requestLogContextMiddleware(middlewareConfig));
+
+	if (middlewareConfig.enableRequestLogging) {
+		requestLoggingMiddleware(app, logger, middlewareConfig);
 	}
 
-	if (config.route.enabled) {
-		app.post(config.route.endpoint, printExternalLogs(config.route));
+	if (partialConfig?.route) {
+		app.post(routeConfig.endpoint, printExternalLogs(logger, routeConfig));
 	}
 };
