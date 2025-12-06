@@ -64,25 +64,30 @@ export class Logger {
 	public static verbose = (
 		message: string,
 		payload?: Record<string, any>
-	): void => Logger.log('verbose')(message, payload);
+	): void => Logger.processLog('verbose')(message, payload);
 	public static debug = (
 		message: string,
 		payload?: Record<string, any>
-	): void => Logger.log('debug')(message, payload);
+	): void => Logger.processLog('debug')(message, payload);
 	public static info = (
 		message: string,
 		payload?: Record<string, any>
-	): void => Logger.log('info')(message, payload);
+	): void => Logger.processLog('info')(message, payload);
 	public static warn = (
 		message: string,
 		payload?: Record<string, any>
-	): void => Logger.log('warn')(message, payload);
+	): void => Logger.processLog('warn')(message, payload);
 	public static error = (
 		message: string,
 		payload?: Record<string, any>
-	): void => Logger.log('error')(message, payload);
+	): void => Logger.processLog('error')(message, payload);
+	public static log = (
+		level: LogLevel,
+		message: string,
+		payload?: Record<string, any>
+	): void => Logger.processLog(level)(message, payload);
 
-	private static log =
+	private static processLog =
 		(level: LogLevel) =>
 		(message: string, payload?: Record<string, any>): void => {
 			if (!Logger.isInitialized) {
