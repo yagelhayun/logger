@@ -9,6 +9,17 @@ import {
 	NextFunction as ExpressNextFunction
 } from 'express';
 
+/**
+ * @internal
+ */
 export type Request = ExpressRequest | FastifyRequest;
+
+/**
+ * @internal
+ */
 export type Response = ExpressResponse | FastifyReply;
+
+/**
+ * @internal
+ */
 export type NextFunction = ExpressNextFunction | FastifyNextFunction;

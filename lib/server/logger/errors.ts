@@ -12,6 +12,11 @@ const normalizeError = (value: any) => {
 	return value;
 };
 
+/**
+ * JSON replacer function that serializes Error objects
+ *
+ * @internal
+ */
 export const errorReplacer = (_key: string, value: any) => {
 	if (value instanceof Error) {
 		return {

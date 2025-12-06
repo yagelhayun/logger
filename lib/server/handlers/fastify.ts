@@ -5,42 +5,44 @@ import {
 	HookHandlerDoneFunction as FastifyNextFunction
 } from 'fastify';
 import {
-	defaultConfig,
+	defaultRouteConfig,
+	defaultMiddlewareConfig,
 	printExternalLogs,
 	requestLogContextMiddleware
 } from './common';
 import { Logger } from '..';
 import { WebFrameworkConfig, MiddlewareConfig, RouteConfig } from '../types';
-import { DeepPartial } from '../../common/types';
 
 const requestLoggingMiddleware = (
 	app: FastifyInstance,
 	logger: Logger,
-	config: MiddlewareConfig<FastifyRequest>
+	middlewareConfig: MiddlewareConfig<FastifyRequest>
 ): void => {
 	app.addHook(
 		'onRequest',
 		(
-			_req: FastifyRequest,
+			req: FastifyRequest,
 			_res: FastifyReply,
 			next: FastifyNextFunction
 		) => {
-			logger.info(config.customReceivedMessage);
+			if (!middlewareConfig.excludePaths.includes(req.url)) {
+				logger.info(middlewareConfig.customReceivedMessage);
+			}
+
 			next();
 		}
 	).addHook(
 		'onResponse',
-		(
-			_req: FastifyRequest,
-			res: FastifyReply,
-			next: FastifyNextFunction
-		) => {
-			logger.info(config.customFinishedMessage, {
-				response: {
-					statusCode: res.statusCode,
-					duration: res.elapsedTime
-				}
-			});
+		(req: FastifyRequest, res: FastifyReply, next: FastifyNextFunction) => {
+			if (!middlewareConfig.excludePaths.includes(req.url)) {
+				logger.info(middlewareConfig.customFinishedMessage, {
+					response: {
+						statusCode: res.statusCode,
+						duration: res.elapsedTime
+					}
+				});
+			}
+
 			next();
 		}
 	);
@@ -49,15 +51,15 @@ const requestLoggingMiddleware = (
 export const applyFastifyLogger = (
 	app: FastifyInstance,
 	logger: Logger,
-	partialConfig?: DeepPartial<WebFrameworkConfig<FastifyRequest>>
+	partialConfig?: WebFrameworkConfig<FastifyRequest>
 ) => {
 	const middlewareConfig: MiddlewareConfig<FastifyRequest> = {
-		...defaultConfig.middleware,
+		...defaultMiddlewareConfig,
 		...partialConfig?.middleware
 	};
 
 	const routeConfig: RouteConfig = {
-		...defaultConfig.route,
+		...defaultRouteConfig,
 		...partialConfig?.route
 	};
 

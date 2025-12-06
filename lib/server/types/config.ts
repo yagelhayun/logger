@@ -4,6 +4,12 @@ import { LogLevel } from '../../common/types';
 
 export type MiddlewareConfig<TReq extends Request = any> = {
 	/**
+	 * Paths to be excluded from logging and metadata attachment.
+	 *
+	 * @default []
+	 */
+	excludePaths: string[];
+	/**
 	 * Enables request metadata to be appended to every log. Includes HTTP method (GET/POST etc.) and endpoint.
 	 *
 	 * @default true
@@ -72,11 +78,11 @@ export type WebFrameworkConfig<TReq extends Request = any> = {
 	 *
 	 * @default undefined
 	 */
-	route?: RouteConfig<TReq>;
+	route?: Partial<RouteConfig<TReq>>;
 	/**
 	 * Middleware that expands the capabilities of your logger
 	 */
-	middleware: MiddlewareConfig<TReq>;
+	middleware: Partial<MiddlewareConfig<TReq>>;
 };
 
 export type LoggerConfig = {

@@ -2,7 +2,6 @@ import { v4 } from 'uuid';
 import { Logger } from '..';
 import {
 	ClientLogs,
-	WebFrameworkConfig,
 	MiddlewareConfig,
 	LogMetadata,
 	Request,
@@ -17,17 +16,20 @@ import { setLogMetadata } from '../logger/metadata';
 /**
  * @internal
  */
-export const defaultConfig: Required<WebFrameworkConfig> = {
-	middleware: {
-		enableRequestMetadata: true,
-		enableRequestLogging: true,
-		customReceivedMessage: 'Request started',
-		customFinishedMessage: 'Request finished',
-		requestIdLogLabel: 'requestId'
-	},
-	route: {
-		endpoint: '/logger/write'
-	}
+export const defaultMiddlewareConfig: MiddlewareConfig = {
+	excludePaths: [],
+	enableRequestMetadata: true,
+	enableRequestLogging: true,
+	customReceivedMessage: 'Request started',
+	customFinishedMessage: 'Request finished',
+	requestIdLogLabel: 'requestId'
+};
+
+/**
+ * @internal
+ */
+export const defaultRouteConfig: RouteConfig = {
+	endpoint: '/logger/write'
 };
 
 const setRequestMetadata = (
@@ -57,6 +59,10 @@ const setRequestMetadata = (
 export const requestLogContextMiddleware =
 	(middlewareConfig: MiddlewareConfig) =>
 	(req: Request, _res: Response, next: NextFunction) => {
+		if (middlewareConfig.excludePaths.includes(req.url)) {
+			return next();
+		}
+
 		attachLogContext(() => {
 			setRequestMetadata(req, middlewareConfig);
 			next();

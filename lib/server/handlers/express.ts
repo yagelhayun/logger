@@ -6,28 +6,30 @@ import {
 } from 'express';
 import { performance } from 'perf_hooks';
 import {
-	defaultConfig,
+	defaultRouteConfig,
+	defaultMiddlewareConfig,
 	printExternalLogs,
 	requestLogContextMiddleware
 } from './common';
 import { Logger } from '..';
 import { WebFrameworkConfig, MiddlewareConfig, RouteConfig } from '../types';
-import { DeepPartial } from '../../common/types';
 
 const requestLoggingMiddleware =
 	(logger: Logger, middlewareConfig: MiddlewareConfig<ExpressRequest>) =>
-	(_req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
-		const startTime: number = performance.now();
-		logger.info(middlewareConfig.customReceivedMessage);
+	(req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
+		if (!middlewareConfig.excludePaths.includes(req.url)) {
+			const startTime: number = performance.now();
+			logger.info(middlewareConfig.customReceivedMessage);
 
-		res.once('finish', () => {
-			logger.info(middlewareConfig.customFinishedMessage, {
-				response: {
-					statusCode: res.statusCode,
-					duration: performance.now() - startTime
-				}
+			res.once('finish', () => {
+				logger.info(middlewareConfig.customFinishedMessage, {
+					response: {
+						statusCode: res.statusCode,
+						duration: performance.now() - startTime
+					}
+				});
 			});
-		});
+		}
 
 		next();
 	};
@@ -35,15 +37,15 @@ const requestLoggingMiddleware =
 export const applyExpressLogger = (
 	app: ExpressApplication,
 	logger: Logger,
-	partialConfig?: DeepPartial<WebFrameworkConfig<ExpressRequest>>
+	partialConfig?: WebFrameworkConfig<ExpressRequest>
 ) => {
 	const middlewareConfig: MiddlewareConfig<ExpressRequest> = {
-		...defaultConfig.middleware,
+		...defaultMiddlewareConfig,
 		...partialConfig?.middleware
 	};
 
 	const routeConfig: RouteConfig = {
-		...defaultConfig.route,
+		...defaultRouteConfig,
 		...partialConfig?.route
 	};
 
