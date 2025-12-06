@@ -94,16 +94,18 @@ export class Logger {
 				return;
 			}
 
+			const metadata: Log['metadata'] = {
+				...payload,
+				...(Logger.config.getUserData && {
+					userData: Logger.config.getUserData()
+				})
+			};
+
 			Logger.logsBuffer.push({
 				level,
 				message,
 				timestamp: new Date(),
-				metadata: {
-					...payload,
-					...(Logger.config.getUserData && {
-						userData: Logger.config.getUserData()
-					})
-				}
+				...(Object.keys(metadata).length && { metadata })
 			});
 
 			if (Logger.logsBuffer.length > Logger.config.bufferSize) {

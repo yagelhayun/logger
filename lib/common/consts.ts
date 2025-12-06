@@ -9,5 +9,5 @@ export const clientLogSchema = z.object({
 	level: z.enum(levels),
 	message: z.string(),
 	timestamp: z.coerce.date(),
-	metadata: z.record(z.any())
+	metadata: z.record(z.any()).optional()
 });
