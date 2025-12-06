@@ -44,11 +44,6 @@ export const applyExpressLogger = (
 		...partialConfig?.middleware
 	};
 
-	const routeConfig: RouteConfig = {
-		...defaultRouteConfig,
-		...partialConfig?.route
-	};
-
 	app.use(requestLogContextMiddleware(middlewareConfig));
 
 	if (middlewareConfig.enableRequestLogging) {
@@ -56,6 +51,11 @@ export const applyExpressLogger = (
 	}
 
 	if (partialConfig?.route) {
+		const routeConfig: RouteConfig = {
+			...defaultRouteConfig,
+			...partialConfig?.route
+		};
+
 		app.post(routeConfig.endpoint, printExternalLogs(logger, routeConfig));
 	}
 };

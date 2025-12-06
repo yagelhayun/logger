@@ -58,11 +58,6 @@ export const applyFastifyLogger = (
 		...partialConfig?.middleware
 	};
 
-	const routeConfig: RouteConfig = {
-		...defaultRouteConfig,
-		...partialConfig?.route
-	};
-
 	app.addHook('onRequest', requestLogContextMiddleware(middlewareConfig));
 
 	if (middlewareConfig.enableRequestLogging) {
@@ -70,6 +65,11 @@ export const applyFastifyLogger = (
 	}
 
 	if (partialConfig?.route) {
+		const routeConfig: RouteConfig = {
+			...defaultRouteConfig,
+			...partialConfig?.route
+		};
+
 		app.post(routeConfig.endpoint, printExternalLogs(logger, routeConfig));
 	}
 };
