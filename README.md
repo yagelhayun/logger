@@ -13,7 +13,7 @@ Here we'll be covering everything that is exclusive to this library. For basic u
 You get started by creating a logger using `createLogger`:
 
 ```js
-import { createLogger, Logger } from '@yagel1999/logger';
+import { createLogger, Logger } from '@yagelhayun/logger';
 
 const logger: Logger = createLogger({
 	isLocal: process.env.NODE_ENV === 'development',
@@ -45,7 +45,7 @@ This can help distinguish between logs per request, which can eventually help yo
 Using `customProps` you can extract properties from anywhere in the request object and map it however you like.
 
 ```js
-import { applyExpressLogger } from '@yagel1999/logger';
+import { applyExpressLogger } from '@yagelhayun/logger';
 
 const app: Application = express();
 
@@ -68,7 +68,7 @@ Just like `customProps` you have the request object available to use, so you can
 If `generateRequestId` not provided or resolves to `undefined`, a new `uuid` will be generated as a fallback.
 
 ```js
-import { applyExpressLogger } from '@yagel1999/logger';
+import { applyExpressLogger } from '@yagelhayun/logger';
 
 const app: Application = express();
 
@@ -98,7 +98,7 @@ This is most beneficial for client applications, but you may use it in other way
 Each time you fetch this endpoint, it checks a strict schema and will not print out your logs if the criterions is not met.
 
 ```js
-import { applyExpressLogger } from '@yagel1999/logger';
+import { applyExpressLogger } from '@yagelhayun/logger';
 
 const app: Application = express();
 
@@ -140,7 +140,7 @@ This is done by wrapping your logic inside a function and passing it to `attachL
 Each time your logic gets executed, a new unique state is created. That state is attached to the current event in the event loop, so each event has its own state. When that event ends, its state is safely disposed.
 
 ```js
-import { attachLogContext } from '@yagel1999/logger';
+import { attachLogContext } from '@yagelhayun/logger';
 
 const main = () => {
     ...
@@ -161,7 +161,7 @@ you can start adding new metadata by using `setLogMetadata`:
 
 ```js
 import { v4 } from 'uuid';
-import { attachLogContext, setLogMetadata } from '@yagel1999/logger';
+import { attachLogContext, setLogMetadata } from '@yagelhayun/logger';
 import { logger } from './logger';
 
 const main = () => {
