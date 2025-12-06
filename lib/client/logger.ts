@@ -4,10 +4,10 @@ import { LogLevel } from '../common/types';
 const defaultConfig: LoggerConfig = {
 	logEndpoint: '/api/logger/write',
 	bufferFlushInterval: 30,
-	maxBufferSize: 10
+	bufferSize: 10
 };
 
-export class ClientLogger {
+export class Logger {
 	private static isInitialized: boolean = false;
 	private static config: LoggerConfig;
 	private static logsBuffer: Log[] = [];
@@ -21,15 +21,15 @@ export class ClientLogger {
 	});
 
 	public static initialize(appUrl: string, config?: Partial<LoggerConfig>) {
-		if (ClientLogger.isInitialized) {
+		if (Logger.isInitialized) {
 			console.warn(
-				"If you're seeing this, you probably initialized your logger multiple times. You should only call the 'initialize' method once👋"
+				"If you're seeing this, you probably initialized your logger multiple times. You should call the 'initialize' method once👋"
 			);
 			return;
 		}
 
-		ClientLogger.isInitialized = true;
-		ClientLogger.config = ClientLogger.mapConfig(appUrl, {
+		Logger.isInitialized = true;
+		Logger.config = Logger.mapConfig(appUrl, {
 			...defaultConfig,
 			...config
 		});
@@ -43,7 +43,7 @@ export class ClientLogger {
 		): OnErrorEventHandler => {
 			if (error) {
 				const errorJson: string = JSON.stringify(error);
-				ClientLogger.error(<string>message, {
+				Logger.error(<string>message, {
 					error: errorJson,
 					source,
 					lineno,
@@ -55,37 +55,42 @@ export class ClientLogger {
 		};
 
 		setInterval(() => {
-			if (ClientLogger.logsBuffer.length) {
-				ClientLogger.sendToServer();
+			if (Logger.logsBuffer.length) {
+				Logger.sendToServer();
 			}
-		}, ClientLogger.config.bufferFlushInterval * 1000);
+		}, Logger.config.bufferFlushInterval * 1000);
 	}
 
 	public static verbose = (
 		message: string,
 		payload?: Record<string, any>
-	): void => ClientLogger.log('verbose')(message, payload);
+	): void => Logger.processLog('verbose')(message, payload);
 	public static debug = (
 		message: string,
 		payload?: Record<string, any>
-	): void => ClientLogger.log('debug')(message, payload);
+	): void => Logger.processLog('debug')(message, payload);
 	public static info = (
 		message: string,
 		payload?: Record<string, any>
-	): void => ClientLogger.log('info')(message, payload);
+	): void => Logger.processLog('info')(message, payload);
 	public static warn = (
 		message: string,
 		payload?: Record<string, any>
-	): void => ClientLogger.log('warn')(message, payload);
+	): void => Logger.processLog('warn')(message, payload);
 	public static error = (
 		message: string,
 		payload?: Record<string, any>
-	): void => ClientLogger.log('error')(message, payload);
+	): void => Logger.processLog('error')(message, payload);
+	public static log = (
+		level: LogLevel,
+		message: string,
+		payload?: Record<string, any>
+	): void => Logger.processLog(level)(message, payload);
 
-	private static log =
+	private static processLog =
 		(level: LogLevel) =>
 		(message: string, payload?: Record<string, any>): void => {
-			if (!ClientLogger.isInitialized) {
+			if (!Logger.isInitialized) {
 				console.error(
 					"Your logger is not initialized yet, therefore this log won't be sent to the server",
 					message,
@@ -94,28 +99,29 @@ export class ClientLogger {
 				return;
 			}
 
-			ClientLogger.logsBuffer.push({
-				message,
+			const metadata: Log['metadata'] = {
+				...payload,
+				...(Logger.config.getUserData && {
+					userData: Logger.config.getUserData()
+				})
+			};
+
+			Logger.logsBuffer.push({
 				level,
+				message,
 				timestamp: new Date(),
-				metadata: {
-					...payload,
-					userData: ClientLogger.config.getUserData?.()
-				}
+				...(Object.keys(metadata).length && { metadata })
 			});
 
-			if (
-				ClientLogger.logsBuffer.length >
-				ClientLogger.config.maxBufferSize
-			) {
-				ClientLogger.sendToServer();
+			if (Logger.logsBuffer.length > Logger.config.bufferSize) {
+				Logger.sendToServer();
 			}
 		};
 
 	private static sendToServer(): void {
-		const bufferJson: string = JSON.stringify(ClientLogger.logsBuffer);
+		const bufferJson: string = JSON.stringify(Logger.logsBuffer);
 
-		fetch(ClientLogger.config.logEndpoint, {
+		fetch(Logger.config.logEndpoint, {
 			headers: {
 				'Content-Type': 'application/json'
 			},
@@ -124,7 +130,7 @@ export class ClientLogger {
 			body: bufferJson
 		})
 			.then(() => {
-				ClientLogger.logsBuffer = [];
+				Logger.logsBuffer = [];
 			})
 			.catch((error: Error) => {
 				console.error(

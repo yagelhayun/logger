@@ -5,40 +5,44 @@ import {
 	HookHandlerDoneFunction as FastifyNextFunction
 } from 'fastify';
 import {
-	defaultConfig,
+	defaultRouteConfig,
+	defaultMiddlewareConfig,
 	printExternalLogs,
 	requestLogContextMiddleware
 } from './common';
-import { DeepPartial, WebFrameworkConfig, MiddlewareConfig } from '../types';
-import { loggerRef } from '../logger';
+import { Logger } from '..';
+import { WebFrameworkConfig, MiddlewareConfig, RouteConfig } from '../types';
 
 const requestLoggingMiddleware = (
 	app: FastifyInstance,
-	config: MiddlewareConfig<FastifyRequest>
+	logger: Logger,
+	middlewareConfig: MiddlewareConfig<FastifyRequest>
 ): void => {
 	app.addHook(
 		'onRequest',
 		(
-			_req: FastifyRequest,
+			req: FastifyRequest,
 			_res: FastifyReply,
 			next: FastifyNextFunction
 		) => {
-			loggerRef?.info(config.customReceivedMessage);
+			if (!middlewareConfig.excludePaths.includes(req.url)) {
+				logger.info(middlewareConfig.customReceivedMessage);
+			}
+
 			next();
 		}
 	).addHook(
 		'onResponse',
-		(
-			_req: FastifyRequest,
-			res: FastifyReply,
-			next: FastifyNextFunction
-		) => {
-			loggerRef?.info(config.customFinishedMessage, {
-				response: {
-					statusCode: res.statusCode,
-					duration: res.getResponseTime()
-				}
-			});
+		(req: FastifyRequest, res: FastifyReply, next: FastifyNextFunction) => {
+			if (!middlewareConfig.excludePaths.includes(req.url)) {
+				logger.info(middlewareConfig.customFinishedMessage, {
+					response: {
+						statusCode: res.statusCode,
+						duration: res.elapsedTime
+					}
+				});
+			}
+
 			next();
 		}
 	);
@@ -46,26 +50,26 @@ const requestLoggingMiddleware = (
 
 export const applyFastifyLogger = (
 	app: FastifyInstance,
-	partialConfig?: DeepPartial<WebFrameworkConfig<FastifyRequest>>
+	logger: Logger,
+	partialConfig?: WebFrameworkConfig<FastifyRequest>
 ) => {
-	const config: WebFrameworkConfig<FastifyRequest> = {
-		middleware: {
-			...defaultConfig.middleware,
-			...partialConfig?.middleware
-		},
-		route: {
-			...defaultConfig.route,
-			...partialConfig?.route
-		}
+	const middlewareConfig: MiddlewareConfig<FastifyRequest> = {
+		...defaultMiddlewareConfig,
+		...partialConfig?.middleware
 	};
 
-	app.addHook('onRequest', requestLogContextMiddleware(config.middleware));
+	app.addHook('onRequest', requestLogContextMiddleware(middlewareConfig));
 
-	if (config.middleware.enableRequestLogging) {
-		requestLoggingMiddleware(app, config.middleware);
+	if (middlewareConfig.enableRequestLogging) {
+		requestLoggingMiddleware(app, logger, middlewareConfig);
 	}
 
-	if (config.route.enabled) {
-		app.post(config.route.endpoint, printExternalLogs(config.route));
+	if (partialConfig?.route) {
+		const routeConfig: RouteConfig = {
+			...defaultRouteConfig,
+			...partialConfig?.route
+		};
+
+		app.post(routeConfig.endpoint, printExternalLogs(logger, routeConfig));
 	}
 };

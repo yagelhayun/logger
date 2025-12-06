@@ -33,7 +33,7 @@ A logger accepts the following parameters:
 ## Web Framework Usage
 
 This logger comes with full support for the `express` and `fastify` web frameworks.
-The configurations themselves are identical for both the frameworks, and here we'll uncover the use of the `express` handler.
+The configurations themselves are identical for both the frameworks, here we'll uncover the use of the `express` handler.
 
 ### Logs Middleware
 
@@ -45,11 +45,17 @@ This can help distinguish between logs per request, which can eventually help yo
 Using `customProps` you can extract properties from anywhere in the request object and map it however you like.
 
 ```js
-import { applyExpressLogger } from '@yagelhayun/logger/server';
+import {
+	Logger,
+	createLogger,
+	applyExpressLogger
+} from '@yagelhayun/logger/server';
+import express, { Application } from 'express';
 
 const app: Application = express();
+const logger: Logger = createLogger();
 
-applyExpressLogger(app, {
+applyExpressLogger(app, logger, {
 	middleware: {
 		customProps: (req) => ({
 			entityId: req.header('entity-id'),
@@ -65,31 +71,37 @@ In the above example we've mapped `entityId` from the headers and `operationName
 
 A function to specifically set a unique request ID.
 Just like `customProps` you have the request object available to use, so you can extract your data from it or simply create a new one yourself.
-If `generateRequestId` not provided or resolves to `undefined`, a new `uuid` will be generated as a fallback.
+If `getRequestId` not provided or resolves to `undefined`, a new `uuid` will be generated as a fallback.
 
 ```js
-import { applyExpressLogger } from '@yagelhayun/logger/server';
+import {
+	Logger,
+	createLogger,
+	applyExpressLogger
+} from '@yagelhayun/logger/server';
+import express, { Application } from 'express';
 
 const app: Application = express();
+const logger: Logger = createLogger();
 
-applyExpressLogger(app, {
+applyExpressLogger(app, logger, {
 	middleware: {
-		generateRequestId: (req) => req.header('request-id')
+		getRequestId: (req) => req.header('request-id')
 	}
 });
 ```
 
 #### API
 
-| Name                    | Default              | Description                                                                                                                                                    |
-| ----------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enableRequestMetadata` | `true`               | Enables request metadata to be appended to every log. Includes HTTP method (GET/POST etc.) and endpoint                                                        |
-| `enableRequestLogging`  | `true`               | Enables internal request logs. Includes a response message that specifies the requests duration                                                                |
-| `customReceivedMessage` | `'Request started'`  | Override the default message printed when a request arrives to the server. Will be silenced if `enableInternalLogs` is off                                     |
-| `customFinishedMessage` | `'Request finished'` | Override the default message printed when a request is finished. Will be silenced if `enableInternalLogs` is off                                               |
-| `requestIdLogLabel`     | `'requestId'`        | Override the default request id label in each log                                                                                                              |
-| `customProps`           | `{}`                 | Appends all properties to every log throughout the whole request lifecycle. Can be useful for things like `realityId`, `userDetails`, `operationName` and more |
-| `generateRequestId`     | `uuid`               | Appends request id to every log throughout the whole request lifecycle                                                                                         |
+| Name                    | Default              | Description                                                                                                                                                   |
+| ----------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enableRequestMetadata` | `true`               | Enables request metadata to be appended to every log. Includes HTTP method (GET/POST etc.) and endpoint                                                       |
+| `enableRequestLogging`  | `true`               | Enables internal request logs. Includes a response message that specifies the requests duration                                                               |
+| `customReceivedMessage` | `'Request started'`  | Override the default message printed when a request arrives to the server. Will be silenced if `enableInternalLogs` is off                                    |
+| `customFinishedMessage` | `'Request finished'` | Override the default message printed when a request is finished. Will be silenced if `enableInternalLogs` is off                                              |
+| `requestIdLogLabel`     | `'requestId'`        | Override the default request id label in each log                                                                                                             |
+| `customProps`           | `{}`                 | Appends all properties to every log throughout the whole request lifecycle. Can be useful for things like `entityId`, `userDetails`, `operationName` and more |
+| `getRequestId`          | `uuid`               | Appends request id to every log throughout the whole request lifecycle                                                                                        |
 
 ### Logs endpoint
 
@@ -98,13 +110,18 @@ This is most beneficial for client applications, but you may use it in other way
 Each time you fetch this endpoint, it checks a strict schema and will not print out your logs if the criterions is not met.
 
 ```js
-import { applyExpressLogger } from '@yagelhayun/logger/server';
+import {
+	Logger,
+	createLogger,
+	applyExpressLogger
+} from '@yagelhayun/logger/server';
+import express, { Application } from 'express';
 
 const app: Application = express();
+const logger: Logger = createLogger();
 
-applyExpressLogger(app, {
+applyExpressLogger(app, logger, {
 	route: {
-		enabled: true,
 		endpoint: '/logs',
 		origin: 'todolist-client'
 	}
@@ -115,7 +132,6 @@ applyExpressLogger(app, {
 
 | Name       | Default           | Description                                                                         |
 | ---------- | ----------------- | ----------------------------------------------------------------------------------- |
-| `enabled`  | `false`           | Enables and exposes the route                                                       |
 | `endpoint` | `'/logger/write'` | The endpoint to be exposed for client logs                                          |
 | `origin`   | `'client'`        | Function that resolves to an `origin` metadata, to be appended to each external log |
 
@@ -161,8 +177,14 @@ you can start adding new metadata by using `setLogMetadata`:
 
 ```js
 import { v4 } from 'uuid';
-import { attachLogContext, setLogMetadata } from '@yagelhayun/logger/server';
-import { logger } from './logger';
+import {
+	attachLogContext,
+	setLogMetadata,
+	createLogger,
+	Logger
+} from '@yagelhayun/logger/server';
+
+const logger: Logger = createLogger();
 
 const main = () => {
 	setLogMetadata('uuid', v4());
