@@ -1,4 +1,4 @@
-import {
+import type {
 	Application as ExpressApplication,
 	Request as ExpressRequest,
 	Response as ExpressResponse,

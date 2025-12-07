@@ -44,7 +44,7 @@
   "author": "Yagel Hayun",
   "license": "ISC",
   "dependencies": {
-    "winston": "^3.11.0"
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
@@ -52,18 +52,21 @@
     "@types/node": "^20.11.17",
     "@types/uuid": "^9.0.8",
     "fastify": "^4.25.2",
-    "typescript": "^5.3.3",
-    "uuid": "^9.0.1"
+    "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "@types/express": ">=4.0.0",
-    "fastify": ">=4.0.0",
+    "@types/express": "4.x.x",
+    "express": "4.x.x",
+    "fastify": "4.x.x",
     "uuid": ">=8.0.0",
-    "zod": ">=3.22.4",
+    "zod": "3.x.x",
     "lodash.merge": ">=4.6.2"
   },
   "peerDependenciesMeta": {
     "@types/express": {
+      "optional": true
+    },
+    "express": {
       "optional": true
     },
     "fastify": {

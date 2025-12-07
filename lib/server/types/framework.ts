@@ -1,9 +1,9 @@
-import {
+import type {
 	FastifyRequest,
 	FastifyReply,
 	HookHandlerDoneFunction as FastifyNextFunction
 } from 'fastify';
-import {
+import type {
 	Request as ExpressRequest,
 	Response as ExpressResponse,
 	NextFunction as ExpressNextFunction
