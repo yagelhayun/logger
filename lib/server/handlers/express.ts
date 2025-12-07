@@ -8,7 +8,7 @@ import { performance } from 'perf_hooks';
 import {
 	defaultRouteConfig,
 	defaultMiddlewareConfig,
-	printExternalLogs,
+	printClientLogs,
 	requestLogContextMiddleware
 } from './common';
 import { Logger } from '..';
@@ -56,6 +56,6 @@ export const applyExpressLogger = (
 			...partialConfig?.route
 		};
 
-		app.post(routeConfig.endpoint, printExternalLogs(logger, routeConfig));
+		app.post(routeConfig.endpoint, printClientLogs(logger, routeConfig));
 	}
 };

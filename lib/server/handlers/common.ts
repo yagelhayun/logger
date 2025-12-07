@@ -12,6 +12,7 @@ import {
 import { clientLogsSchema } from '../consts';
 import { attachLogContext } from '../async_hooks';
 import { setLogMetadata } from '../logger/metadata';
+import { CLIENT_LOGS_ENDPOINT } from '../../common/consts';
 
 /**
  * @internal
@@ -29,7 +30,7 @@ export const defaultMiddlewareConfig: MiddlewareConfig = {
  * @internal
  */
 export const defaultRouteConfig: RouteConfig = {
-	endpoint: '/logger/write'
+	endpoint: CLIENT_LOGS_ENDPOINT
 };
 
 const setRequestMetadata = (
@@ -72,7 +73,7 @@ export const requestLogContextMiddleware =
 /**
  * @internal
  */
-export const printExternalLogs =
+export const printClientLogs =
 	(logger: Logger, config: RouteConfig) => (req: Request, res: Response) => {
 		try {
 			const origin = config.origin?.(req) || 'client';

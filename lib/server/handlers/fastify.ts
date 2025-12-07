@@ -7,7 +7,7 @@ import {
 import {
 	defaultRouteConfig,
 	defaultMiddlewareConfig,
-	printExternalLogs,
+	printClientLogs,
 	requestLogContextMiddleware
 } from './common';
 import { Logger } from '..';
@@ -70,6 +70,6 @@ export const applyFastifyLogger = (
 			...partialConfig?.route
 		};
 
-		app.post(routeConfig.endpoint, printExternalLogs(logger, routeConfig));
+		app.post(routeConfig.endpoint, printClientLogs(logger, routeConfig));
 	}
 };

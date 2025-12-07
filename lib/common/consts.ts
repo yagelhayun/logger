@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const CLIENT_LOGS_ENDPOINT: string = '/logger/write';
+
 export const levels = ['verbose', 'debug', 'info', 'warn', 'error'] as const;
 
 /**

@@ -65,7 +65,7 @@ export type RouteConfig<TReq extends Request = any> = {
 	 */
 	endpoint: string;
 	/**
-	 * Function that resolves to an 'origin' metadata, to be appended to each external log.
+	 * Function that resolves to an 'origin' metadata, to be appended to each client log.
 	 *
 	 * @default 'client'
 	 */
@@ -74,7 +74,7 @@ export type RouteConfig<TReq extends Request = any> = {
 
 export type WebFrameworkConfig<TReq extends Request = any> = {
 	/**
-	 * Route for printing logs sent from an external source.
+	 * Route for printing logs sent from an external source (e.g. your client application).
 	 *
 	 * @default undefined
 	 */
