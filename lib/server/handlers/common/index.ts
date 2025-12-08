@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import { Logger } from '..';
+import { Logger } from '../..';
 import {
 	ClientLogs,
 	MiddlewareConfig,
@@ -8,11 +8,11 @@ import {
 	Response,
 	NextFunction,
 	RouteConfig
-} from '../types';
-import { clientLogsSchema } from '../consts';
-import { attachLogContext } from '../async_hooks';
-import { setLogMetadata } from '../logger/metadata';
-import { CLIENT_LOGS_ENDPOINT } from '../../common/consts';
+} from '../../types';
+import { clientLogsSchema } from '../../consts';
+import { attachLogContext } from '../../async_hooks';
+import { setLogMetadata } from '../../logger/metadata';
+import { CLIENT_LOGS_ENDPOINT } from '../../../common/consts';
 
 /**
  * @internal
@@ -33,7 +33,10 @@ export const defaultRouteConfig: RouteConfig = {
 	endpoint: CLIENT_LOGS_ENDPOINT
 };
 
-const setRequestMetadata = (
+/**
+ * @internal
+ */
+export const setRequestMetadata = (
 	req: Request,
 	middlewareConfig: MiddlewareConfig
 ) => {

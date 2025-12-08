@@ -4,14 +4,14 @@ import type {
 	FastifyReply,
 	HookHandlerDoneFunction as FastifyNextFunction
 } from 'fastify';
+import { Logger } from 'winston';
 import {
 	defaultRouteConfig,
 	defaultMiddlewareConfig,
 	printClientLogs,
 	requestLogContextMiddleware
-} from './common';
-import { Logger } from '..';
-import { WebFrameworkConfig, MiddlewareConfig, RouteConfig } from '../types';
+} from '../common';
+import { WebFrameworkConfig, MiddlewareConfig, RouteConfig } from '../../types';
 
 const requestLoggingMiddleware = (
 	app: FastifyInstance,
