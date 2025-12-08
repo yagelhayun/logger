@@ -4,15 +4,15 @@ import type {
 	Response as ExpressResponse,
 	NextFunction as ExpressNextFunction
 } from 'express';
+import { Logger } from 'winston';
 import { performance } from 'perf_hooks';
 import {
 	defaultRouteConfig,
 	defaultMiddlewareConfig,
 	printClientLogs,
 	requestLogContextMiddleware
-} from './common';
-import { Logger } from '..';
-import { WebFrameworkConfig, MiddlewareConfig, RouteConfig } from '../types';
+} from '../common';
+import { WebFrameworkConfig, MiddlewareConfig, RouteConfig } from '../../types';
 
 const requestLoggingMiddleware =
 	(logger: Logger, middlewareConfig: MiddlewareConfig<ExpressRequest>) =>

@@ -1,6 +1,6 @@
 {
   "name": "@yagelhayun/logger",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "JSON Logger with superpowers",
   "files": [
     "dist/**",
@@ -47,20 +47,28 @@
     "winston": "^3.19.0"
   },
   "devDependencies": {
+    "@nestjs/common": "^7.6.13",
+    "@nestjs/core": "^7.6.13",
+    "@nestjs/platform-express": "^7.6.18",
+    "@nestjs/platform-fastify": "^7.6.18",
     "@types/express": "^4.17.21",
     "@types/lodash.merge": "^4.6.7",
     "@types/node": "^20.11.17",
     "@types/uuid": "^9.0.8",
     "fastify": "^4.25.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "rxjs": "^6.6.0"
   },
   "peerDependencies": {
+    "@nestjs/common": ">=7.0.0",
+    "@nestjs/core": ">=7.0.0",
     "@types/express": "4.x.x",
     "express": "4.x.x",
     "fastify": "4.x.x",
+    "lodash.merge": ">=4.6.2",
     "uuid": ">=8.0.0",
-    "zod": "3.x.x",
-    "lodash.merge": ">=4.6.2"
+    "rxjs": ">=6.6.0",
+    "zod": "3.x.x"
   },
   "peerDependenciesMeta": {
     "@types/express": {
@@ -70,6 +78,15 @@
       "optional": true
     },
     "fastify": {
+      "optional": true
+    },
+    "@nestjs/common": {
+      "optional": true
+    },
+    "@nestjs/core": {
+      "optional": true
+    },
+    "rxjs": {
       "optional": true
     }
   }

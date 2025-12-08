@@ -1,0 +1,93 @@
+import type {
+	CallHandler,
+	ExecutionContext,
+	NestInterceptor
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { performance } from 'perf_hooks';
+import type {
+	Request as ExpressRequest,
+	Response as ExpressResponse
+} from 'express';
+import { Logger } from 'winston';
+import { MiddlewareConfig } from '../../types';
+import { setRequestMetadata } from '../common';
+import { attachLogContext } from '../../async_hooks';
+import { applyNestLogger, getRequest } from '../common/nest';
+
+/**
+ * @internal
+ */
+export class ExpressLoggerInterceptor implements NestInterceptor {
+	private middlewareConfig: MiddlewareConfig<ExpressRequest>;
+	private logger: Logger;
+	private startTimes: WeakMap<ExpressRequest, number> = new WeakMap();
+
+	constructor(
+		logger: Logger,
+		middlewareConfig: MiddlewareConfig<ExpressRequest>
+	) {
+		this.logger = logger;
+		this.middlewareConfig = middlewareConfig;
+	}
+
+	intercept(
+		context: ExecutionContext,
+		next: CallHandler
+	): Observable<unknown> {
+		const req = getRequest<ExpressRequest>(context);
+
+		if (!req || this.middlewareConfig.excludePaths.includes(req.url)) {
+			return next.handle();
+		}
+
+		return new Observable((subscriber) => {
+			attachLogContext(() => {
+				setRequestMetadata(req, this.middlewareConfig);
+
+				if (this.middlewareConfig.enableRequestLogging) {
+					const startTime = performance.now();
+					this.startTimes.set(req, startTime);
+
+					this.logger.info(
+						this.middlewareConfig.customReceivedMessage
+					);
+
+					if (context.getType() === 'http') {
+						const res = context
+							.switchToHttp()
+							.getResponse<ExpressResponse>();
+
+						res.once('finish', () => {
+							const startTime = this.startTimes.get(req);
+							const duration = startTime
+								? performance.now() - startTime
+								: undefined;
+
+							this.logger.info(
+								this.middlewareConfig.customFinishedMessage,
+								{
+									response: {
+										statusCode: res.statusCode,
+										...(duration !== undefined && {
+											duration
+										})
+									}
+								}
+							);
+						});
+					}
+				}
+
+				const observable = next.handle();
+				observable.subscribe({
+					next: (value: unknown) => subscriber.next(value),
+					error: (err: unknown) => subscriber.error(err),
+					complete: () => subscriber.complete()
+				});
+			});
+		});
+	}
+}
+
+export const applyExpressNestLogger = applyNestLogger(ExpressLoggerInterceptor);
