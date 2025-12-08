@@ -1,2 +1,2 @@
-export { applyFastifyLogger } from './vanilla';
+export { applyFastifyLogger } from './standalone';
 export { applyFastifyNestLogger } from './nest';

@@ -1,6 +1,6 @@
 # Logger
 
-A powerful JSON logger built on top of `winston`, designed for both server-side and client-side applications. This library extends `winston` with simplified configuration, automatic request metadata tracking, and seamless integration with popular web frameworks.
+A powerful JSON logger, designed for both server-side and client-side applications.
 
 ## Installation
 
@@ -10,7 +10,7 @@ npm install @yagelhayun/logger
 
 ## Motivation
 
-This logger extends the `winston` logger with features that make logging easier and more effective. With simplified configuration and flexible tools designed for web frameworks, you can shape your logs while still using the familiar `winston` API.
+This logger builds on `winston`, adding features that make logging simpler and more powerful. With easy configuration, flexible utilities for web frameworks—like automatic request metadata tracking—and seamless integration with popular frameworks, you can structure your logs effectively while continuing to use the familiar `winston` API.
 
 This documentation covers everything that is exclusive to this library. For basic `winston` usage, refer to [their documentation](https://www.npmjs.com/package/winston).
 
@@ -103,9 +103,11 @@ The client logger automatically captures unhandled errors via `window.onerror`, 
 
 ## Web Framework Usage
 
-This logger provides full support for both `express` and `fastify` web frameworks. The configuration is identical for both frameworks.
+This logger provides full support for `express`, `fastify`, and `NestJS` web frameworks. The configuration is identical across all frameworks.
 
 ### Express Integration
+
+For standalone Express applications:
 
 ```js
 import {
@@ -129,9 +131,54 @@ applyExpressLogger(app, logger, {
 });
 ```
 
-### Middleware Configuration
+### NestJS Integration
 
-The middleware automatically appends request-specific metadata to all logs within a request lifecycle, helping you distinguish and analyze logs per request.
+For NestJS applications, use the framework-specific functions. The logger integrates seamlessly with NestJS's execution context, ensuring request metadata is available throughout the entire request lifecycle.
+
+#### Express Adapter
+
+```js
+import { NestFactory } from '@nestjs/core';
+import { WinstonModule } from 'nest-winston';
+import {
+	applyExpressNestLogger,
+	createLogger
+} from '@yagelhayun/logger/server';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+
+async function bootstrap() {
+	const logger = createLogger();
+
+	const app: NestExpressApplication = await NestFactory.create(AppModule, {
+		logger: WinstonModule.createLogger({
+			instance: logger
+		})
+	});
+
+	applyExpressNestLogger(app, logger, {
+		middleware: {
+			customProps: (req) => ({
+				operationName: req.body?.operationName
+			})
+		}
+	});
+
+	await app.listen(3000);
+}
+bootstrap();
+```
+
+**Important Notes:**
+
+-   NestJS integration uses interceptors to establish async context, ensuring metadata is available in all execution phases
+-   Compatible with NestJS v7.0.0+
+-   Works with both REST controllers and GraphQL resolvers
+-   The interceptor runs early in the execution pipeline, before guards, pipes, and controllers
+
+### Framework Configuration
+
+The logger automatically appends request-specific metadata to all logs within a request lifecycle, helping you distinguish and analyze logs per request. This works identically across Express, Fastify, and NestJS integrations.
 
 #### Appending Custom Metadata
 
@@ -142,7 +189,7 @@ applyExpressLogger(app, logger, {
 	middleware: {
 		customProps: (req) => ({
 			entityId: req.header('entity-id'),
-			operationName: req.body.operationName,
+			operationName: req.body?.operationName,
 			userId: req.user?.id
 		})
 	}
@@ -262,11 +309,11 @@ const main = () => {
 attachLogContext(main);
 ```
 
-**Important:** Only use this feature when necessary! The primary use case is for services that don't receive HTTP requests (e.g., cron jobs, background workers). If you're using `applyExpressLogger` or `applyFastifyLogger`, you don't need this—they already set up the context automatically.
+**Important:** Only use this feature when necessary! The primary use case is for services that don't receive HTTP requests (e.g., cron jobs, background workers). If you're using `applyExpressLogger`, `applyFastifyLogger`, `applyExpressNestLogger`, or `applyFastifyNestLogger`, you don't need this—they already set up the context automatically.
 
 ### Adding Metadata Dynamically
 
-After establishing a log context (via `attachLogContext`, `applyExpressLogger`, or `applyFastifyLogger`), you can add metadata dynamically using `setLogMetadata`:
+After establishing a log context (via `attachLogContext`, `applyExpressLogger`, `applyFastifyLogger`, `applyExpressNestLogger`, or `applyFastifyNestLogger`), you can add metadata dynamically using `setLogMetadata`:
 
 ```js
 import { v4 } from 'uuid';

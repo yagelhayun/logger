@@ -1,2 +1,2 @@
-export { applyExpressLogger } from './vanilla';
+export { applyExpressLogger } from './standalone';
 export { applyExpressNestLogger } from './nest';
