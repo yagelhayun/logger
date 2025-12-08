@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import { Logger } from '../..';
+import { Logger } from 'winston';
 import {
 	ClientLogs,
 	MiddlewareConfig,
