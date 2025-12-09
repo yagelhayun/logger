@@ -1,5 +1,5 @@
-import { Log, LoggerConfig } from './types';
-import { LogLevel } from '../common/types';
+import type { Log, LoggerConfig } from './types';
+import type { LogLevel } from '../common/types';
 import { CLIENT_LOGS_ENDPOINT } from '../common/consts';
 
 const defaultConfig: LoggerConfig = {

@@ -1,5 +1,5 @@
 import merge from 'lodash.merge';
-import { LogMetadata } from '../types';
+import type { LogMetadata } from '../types';
 import { get, set } from '../async_hooks';
 
 const LOG_METADATA_CONTEXT_KEY: string = 'context_scoped_log_metadata';

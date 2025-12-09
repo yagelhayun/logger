@@ -1,10 +1,15 @@
-import { Logger } from 'winston';
+import type { Logger } from 'winston';
 import type { FastifyRequest } from 'fastify';
 import type { Request as ExpressRequest } from 'express';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { NestFastifyApplication } from '@nestjs/platform-fastify';
+import type { NestExpressApplication } from '@nestjs/platform-express';
+import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { ExecutionContext } from '@nestjs/common';
-import { MiddlewareConfig, RouteConfig, WebFrameworkConfig } from '../../types';
+import type {
+	MiddlewareConfig,
+	RouteConfig,
+	WebFrameworkConfig,
+	Request
+} from '../../types';
 import {
 	defaultMiddlewareConfig,
 	defaultRouteConfig,
@@ -16,7 +21,7 @@ import { FastifyLoggerInterceptor } from '../fastify/nest';
 /**
  * @internal
  */
-export const getRequest = <TReq extends ExpressRequest | FastifyRequest>(
+export const getRequest = <TReq extends Request>(
 	context: ExecutionContext
 ): TReq | null => {
 	const contextType = context.getType<'http' | 'graphql'>();

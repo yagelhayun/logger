@@ -1,10 +1,10 @@
 import {
-	Logger,
+	type Logger,
 	format,
 	transports,
 	createLogger as createWinstonLogger
 } from 'winston';
-import { LoggerConfig } from '../types';
+import type { LoggerConfig } from '../types';
 import { errorReplacer } from './errors';
 import { getLogMetadata } from './metadata';
 

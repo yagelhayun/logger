@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
-import { Logger } from 'winston';
-import {
+import type { Logger } from 'winston';
+import type {
 	ClientLogs,
 	MiddlewareConfig,
 	LogMetadata,

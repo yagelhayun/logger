@@ -28,7 +28,7 @@ export const errorReplacer = (_key: string, value: any) => {
 				errors: value.errors.map(normalizeError)
 			})
 		};
-	} else {
-		return value;
 	}
+
+	return value;
 };

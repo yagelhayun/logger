@@ -1,6 +1,6 @@
-import { Request } from './framework';
-import { LogMetadata } from './internal';
-import { LogLevel } from '../../common/types';
+import type { Request } from './framework';
+import type { LogMetadata } from './internal';
+import type { LogLevel } from '../../common/types';
 
 export type MiddlewareConfig<TReq extends Request = any> = {
 	/**

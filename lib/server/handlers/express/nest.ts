@@ -9,8 +9,8 @@ import type {
 	Request as ExpressRequest,
 	Response as ExpressResponse
 } from 'express';
-import { Logger } from 'winston';
-import { MiddlewareConfig } from '../../types';
+import type { Logger } from 'winston';
+import type { MiddlewareConfig } from '../../types';
 import { setRequestMetadata } from '../common';
 import { attachLogContext } from '../../async_hooks';
 import { applyNestLogger, getRequest } from '../common/nest';

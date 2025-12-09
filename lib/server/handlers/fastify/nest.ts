@@ -5,8 +5,8 @@ import type {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { Logger } from 'winston';
-import { MiddlewareConfig } from '../../types';
+import type { Logger } from 'winston';
+import type { MiddlewareConfig } from '../../types';
 import { setRequestMetadata } from '../common';
 import { attachLogContext } from '../../async_hooks';
 import { applyNestLogger, getRequest } from '../common/nest';
