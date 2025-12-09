@@ -78,4 +78,34 @@ export class FastifyLoggerInterceptor implements NestInterceptor {
 	}
 }
 
+/**
+ * Integrates logger with a NestJS application using Fastify adapter.
+ * Sets up request metadata tracking via interceptors for all execution phases.
+ *
+ * @param app - NestJS Fastify application instance
+ * @param logger - Winston logger instance
+ * @param partialConfig - Optional configuration for middleware and client logs route
+ *
+ * @example
+ * ```ts
+ * import { NestFactory } from '@nestjs/core';
+ * import { createLogger, applyFastifyNestLogger, Logger } from '@yagelhayun/logger/server';
+ * import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+ * import { AppModule } from './app.module';
+ *
+ * async function bootstrap() {
+ *   const logger: Logger = createLogger();
+ *   const app: NestFastifyApplication = await NestFactory.create(AppModule, new FastifyAdapter());
+ *
+ *   applyFastifyNestLogger(app, logger, {
+ *     middleware: {
+ *       customProps: (req) => ({ userId: req.user?.id })
+ *     }
+ *   });
+ *
+ *   await app.listen(3000);
+ * }
+ * bootstrap();
+ * ```
+ */
 export const applyFastifyNestLogger = applyNestLogger(FastifyLoggerInterceptor);

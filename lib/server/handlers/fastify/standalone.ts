@@ -57,6 +57,29 @@ const requestLifecycleLoggingMiddleware = (
 	);
 };
 
+/**
+ * Integrates logger with a Fastify application.
+ * Sets up request metadata tracking and optional lifecycle logging.
+ *
+ * @param app - Fastify instance
+ * @param logger - Winston logger instance
+ * @param partialConfig - Optional configuration for middleware and client logs route
+ *
+ * @example
+ * ```ts
+ * import fastify, { FastifyInstance } from 'fastify';
+ * import { createLogger, applyFastifyLogger, Logger } from '@yagelhayun/logger/server';
+ *
+ * const app: FastifyInstance = fastify();
+ * const logger: Logger = createLogger();
+ *
+ * applyFastifyLogger(app, logger, {
+ *   middleware: {
+ *     customProps: (req) => ({ userId: req.user?.id })
+ *   }
+ * });
+ * ```
+ */
 export const applyFastifyLogger = (
 	app: FastifyInstance,
 	logger: Logger,

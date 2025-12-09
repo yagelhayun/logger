@@ -92,4 +92,36 @@ export class ExpressLoggerInterceptor implements NestInterceptor {
 	}
 }
 
+/**
+ * Integrates logger with a NestJS application using Express adapter.
+ * Sets up request metadata tracking via interceptors for all execution phases.
+ *
+ * @param app - NestJS Express application instance
+ * @param logger - Winston logger instance
+ * @param partialConfig - Optional configuration for middleware and client logs route
+ *
+ * @example
+ * ```ts
+ * import { NestFactory } from '@nestjs/core';
+ * import { applyExpressNestLogger, createLogger, Logger } from '@yagelhayun/logger/server';
+ * import { AppModule } from './app.module';
+ * import { NestExpressApplication } from '@nestjs/platform-express';
+ *
+ * async function bootstrap() {
+ * 	const logger: Logger = createLogger();
+ * 	const app: NestExpressApplication = await NestFactory.create(AppModule);
+ *
+ * 	applyExpressNestLogger(app, logger, {
+ * 		middleware: {
+ * 			customProps: (req) => ({
+ * 				operationName: req.body?.operationName
+ * 			})
+ * 		}
+ * 	});
+ *
+ * 	await app.listen(3000);
+ * }
+ * bootstrap();
+ * ```
+ */
 export const applyExpressNestLogger = applyNestLogger(ExpressLoggerInterceptor);

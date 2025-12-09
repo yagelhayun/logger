@@ -43,6 +43,33 @@ const requestLifecycleLoggingMiddleware =
 		next();
 	};
 
+/**
+ * Integrates logger with an Express application.
+ * Sets up request metadata tracking and optional lifecycle logging.
+ *
+ * @param app - Express application instance
+ * @param logger - Winston logger instance
+ * @param partialConfig - Optional configuration for middleware and client logs route
+ *
+ * @example
+ * ```ts
+ * import { Logger, createLogger, applyExpressLogger } from '@yagelhayun/logger/server';
+ * import express, { Application } from 'express';
+ *
+ * const app: Application = express();
+ * const logger: Logger = createLogger();
+ *
+ * applyExpressLogger(app, logger, {
+ * 	middleware: {
+ * 		customProps: (req) => ({
+ * 			entityId: req.header('entity-id'),
+ * 			operationName: req.body?.operationName
+ * 		}),
+ * 		getRequestId: (req) => req.header('request-id')
+ * 	}
+ * });
+ * ```
+ */
 export const applyExpressLogger = (
 	app: ExpressApplication,
 	logger: Logger,

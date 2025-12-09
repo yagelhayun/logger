@@ -2,6 +2,9 @@ import type { Request } from './framework';
 import type { LogMetadata } from './internal';
 import type { LogLevel } from '../../common/types';
 
+/**
+ * Configuration for request metadata and logging middleware.
+ */
 export type MiddlewareConfig<TReq extends Request = any> = {
 	/**
 	 * URL paths excluded from logging and metadata attachment.
@@ -55,6 +58,9 @@ export type MiddlewareConfig<TReq extends Request = any> = {
 	getRequestId?: (req: TReq) => string | undefined;
 };
 
+/**
+ * Configuration for the client logs endpoint.
+ */
 export type RouteConfig<TReq extends Request = any> = {
 	/**
 	 * Endpoint path for receiving client logs.
@@ -71,6 +77,9 @@ export type RouteConfig<TReq extends Request = any> = {
 	origin?: (req: TReq) => string | undefined;
 };
 
+/**
+ * Configuration for web framework logger integration.
+ */
 export type WebFrameworkConfig<TReq extends Request = any> = {
 	/**
 	 * Client logs endpoint configuration.

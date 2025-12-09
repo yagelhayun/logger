@@ -8,6 +8,10 @@ const defaultConfig: LoggerConfig = {
 	bufferSize: 10
 };
 
+/**
+ * Client-side logger that batches and sends logs to a server endpoint.
+ * Automatically captures unhandled errors and includes user data in logs.
+ */
 export class Logger {
 	private static isInitialized: boolean = false;
 	private static config: LoggerConfig;
@@ -21,6 +25,14 @@ export class Logger {
 		logEndpoint: serverUrl + clientConfig.logEndpoint
 	});
 
+	/**
+	 * Initializes the logger with server URL and configuration.
+	 * Must be called before using any logging methods.
+	 * Sets up automatic error capture and periodic log flushing.
+	 *
+	 * @param appUrl - Base URL of the server (e.g., 'https://api.example.com')
+	 * @param config - Optional configuration override
+	 */
 	public static initialize(appUrl: string, config?: Partial<LoggerConfig>) {
 		if (Logger.isInitialized) {
 			console.warn(
@@ -62,26 +74,68 @@ export class Logger {
 		}, Logger.config.bufferFlushInterval * 1000);
 	}
 
+	/**
+	 * Logs a verbose message.
+	 *
+	 * @param message - Log message
+	 * @param payload - Optional metadata
+	 */
 	public static verbose = (
 		message: string,
 		payload?: Record<string, any>
 	): void => Logger.processLog('verbose')(message, payload);
+
+	/**
+	 * Logs a debug message.
+	 *
+	 * @param message - Log message
+	 * @param payload - Optional metadata
+	 */
 	public static debug = (
 		message: string,
 		payload?: Record<string, any>
 	): void => Logger.processLog('debug')(message, payload);
+
+	/**
+	 * Logs an info message.
+	 *
+	 * @param message - Log message
+	 * @param payload - Optional metadata
+	 */
 	public static info = (
 		message: string,
 		payload?: Record<string, any>
 	): void => Logger.processLog('info')(message, payload);
+
+	/**
+	 * Logs a warning message.
+	 *
+	 * @param message - Log message
+	 * @param payload - Optional metadata
+	 */
 	public static warn = (
 		message: string,
 		payload?: Record<string, any>
 	): void => Logger.processLog('warn')(message, payload);
+
+	/**
+	 * Logs an error message.
+	 *
+	 * @param message - Log message
+	 * @param payload - Optional metadata
+	 */
 	public static error = (
 		message: string,
 		payload?: Record<string, any>
 	): void => Logger.processLog('error')(message, payload);
+
+	/**
+	 * Logs a message with a custom log level.
+	 *
+	 * @param level - Log level
+	 * @param message - Log message
+	 * @param payload - Optional metadata
+	 */
 	public static log = (
 		level: LogLevel,
 		message: string,
