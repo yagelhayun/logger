@@ -5,10 +5,10 @@ import { get, set } from '../async_hooks';
 const LOG_METADATA_CONTEXT_KEY: string = 'context_scoped_log_metadata';
 
 /**
- * Adds a value to the log context. If the key already exists, its value will be merged.
+ * Sets metadata in the log context. Merges with existing values.
  *
- * @param {string} key
- * @param {any} value
+ * @param key - Metadata key
+ * @param value - Metadata value (merged if key exists)
  */
 export const setLogMetadata = (key: string, value: any): void => {
 	const metadata: LogMetadata = merge(getLogMetadata(), { [key]: value });

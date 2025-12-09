@@ -19,9 +19,10 @@ const metadataFormatter = format((info) => {
 });
 
 /**
- * Creates and returns a logger instance.
+ * Creates a winston logger instance with context metadata support.
  *
- * @param config
+ * @param partialConfig - Optional logger configuration
+ * @returns Configured winston logger instance
  */
 export const createLogger = (partialConfig?: Partial<LoggerConfig>): Logger => {
 	const config: LoggerConfig = {

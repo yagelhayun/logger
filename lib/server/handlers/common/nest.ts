@@ -19,6 +19,8 @@ import { ExpressLoggerInterceptor } from '../express/nest';
 import { FastifyLoggerInterceptor } from '../fastify/nest';
 
 /**
+ * Extracts request object from NestJS execution context (HTTP or GraphQL).
+ *
  * @internal
  */
 export const getRequest = <TReq extends Request>(
@@ -78,6 +80,8 @@ type RequestForInterceptor<TInterceptor> =
 		: never;
 
 /**
+ * Factory function that creates NestJS logger integration.
+ *
  * @internal
  */
 export const applyNestLogger =

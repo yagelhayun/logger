@@ -12,6 +12,8 @@ import { attachLogContext } from '../../async_hooks';
 import { applyNestLogger, getRequest } from '../common/nest';
 
 /**
+ * NestJS interceptor that establishes async context for Fastify requests.
+ *
  * @internal
  */
 export class FastifyLoggerInterceptor implements NestInterceptor {

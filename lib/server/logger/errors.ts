@@ -13,7 +13,7 @@ const normalizeError = (value: any) => {
 };
 
 /**
- * JSON replacer function that serializes Error objects
+ * JSON replacer that serializes Error objects with message, stack, and type.
  *
  * @internal
  */

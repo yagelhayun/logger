@@ -34,6 +34,8 @@ export const defaultRouteConfig: RouteConfig = {
 };
 
 /**
+ * Sets request metadata in the async context.
+ *
  * @internal
  */
 export const setRequestMetadata = (
@@ -58,9 +60,11 @@ export const setRequestMetadata = (
 };
 
 /**
+ * Middleware that establishes async context and sets request metadata.
+ *
  * @internal
  */
-export const requestLogContextMiddleware =
+export const logContextMiddleware =
 	(middlewareConfig: MiddlewareConfig) =>
 	(req: Request, _res: Response, next: NextFunction) => {
 		if (middlewareConfig.excludePaths.includes(req.url)) {
@@ -74,6 +78,8 @@ export const requestLogContextMiddleware =
 	};
 
 /**
+ * Route handler for receiving and processing client logs.
+ *
  * @internal
  */
 export const printClientLogs =

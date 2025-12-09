@@ -3,26 +3,26 @@ import { AsyncLocalStorage } from 'async_hooks';
 const context = new AsyncLocalStorage<Map<string, any>>();
 
 /**
- * Adds a value to the context by key. If the key already exists, its value will be overwritten. No value will persist if the context has not yet been initialized.
+ * Sets a value in the async context. Overwrites existing keys.
  *
  * @internal
- * @param {string} key
- * @param {any} value
  */
 export const set = (key: string, value: any): void => {
 	context.getStore()?.set(key, value);
 };
 
 /**
+ * Gets a value from the async context.
+ *
  * @internal
  */
 export const get = <T>(key: string): T | undefined =>
 	context.getStore()?.get(key);
 
 /**
- * Defines the start of a code block in which a unique context should run in
+ * Runs callback within a new async context.
  *
- * @param {Function} callback
+ * @param callback - Function to execute within the context
  */
 export const attachLogContext = (callback: () => void): void => {
 	context.run(new Map<string, any>(), callback);

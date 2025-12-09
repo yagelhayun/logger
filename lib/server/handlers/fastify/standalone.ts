@@ -9,7 +9,7 @@ import {
 	defaultRouteConfig,
 	defaultMiddlewareConfig,
 	printClientLogs,
-	requestLogContextMiddleware
+	logContextMiddleware
 } from '../common';
 import type {
 	WebFrameworkConfig,
@@ -17,7 +17,12 @@ import type {
 	RouteConfig
 } from '../../types';
 
-const requestLoggingMiddleware = (
+/**
+ * Fastify hooks that log request start and finish with duration.
+ *
+ * @internal
+ */
+const requestLifecycleLoggingMiddleware = (
 	app: FastifyInstance,
 	logger: Logger,
 	middlewareConfig: MiddlewareConfig<FastifyRequest>
@@ -62,10 +67,10 @@ export const applyFastifyLogger = (
 		...partialConfig?.middleware
 	};
 
-	app.addHook('onRequest', requestLogContextMiddleware(middlewareConfig));
+	app.addHook('onRequest', logContextMiddleware(middlewareConfig));
 
 	if (middlewareConfig.enableRequestLogging) {
-		requestLoggingMiddleware(app, logger, middlewareConfig);
+		requestLifecycleLoggingMiddleware(app, logger, middlewareConfig);
 	}
 
 	if (partialConfig?.route) {

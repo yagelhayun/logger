@@ -10,7 +10,7 @@ import {
 	defaultRouteConfig,
 	defaultMiddlewareConfig,
 	printClientLogs,
-	requestLogContextMiddleware
+	logContextMiddleware
 } from '../common';
 import type {
 	WebFrameworkConfig,
@@ -18,7 +18,12 @@ import type {
 	RouteConfig
 } from '../../types';
 
-const requestLoggingMiddleware =
+/**
+ * Middleware that logs request start and finish with duration.
+ *
+ * @internal
+ */
+const requestLifecycleLoggingMiddleware =
 	(logger: Logger, middlewareConfig: MiddlewareConfig<ExpressRequest>) =>
 	(req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => {
 		if (!middlewareConfig.excludePaths.includes(req.url)) {
@@ -48,10 +53,10 @@ export const applyExpressLogger = (
 		...partialConfig?.middleware
 	};
 
-	app.use(requestLogContextMiddleware(middlewareConfig));
+	app.use(logContextMiddleware(middlewareConfig));
 
 	if (middlewareConfig.enableRequestLogging) {
-		app.use(requestLoggingMiddleware(logger, middlewareConfig));
+		app.use(requestLifecycleLoggingMiddleware(logger, middlewareConfig));
 	}
 
 	if (partialConfig?.route) {

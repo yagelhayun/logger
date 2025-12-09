@@ -16,6 +16,8 @@ import { attachLogContext } from '../../async_hooks';
 import { applyNestLogger, getRequest } from '../common/nest';
 
 /**
+ * NestJS interceptor that establishes async context for Express requests.
+ *
  * @internal
  */
 export class ExpressLoggerInterceptor implements NestInterceptor {

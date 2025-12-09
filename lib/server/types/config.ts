@@ -4,103 +4,97 @@ import type { LogLevel } from '../../common/types';
 
 export type MiddlewareConfig<TReq extends Request = any> = {
 	/**
-	 * Paths to be excluded from logging and metadata attachment.
+	 * URL paths excluded from logging and metadata attachment.
 	 *
 	 * @default []
 	 */
 	excludePaths: string[];
 	/**
-	 * Enables request metadata to be appended to every log. Includes HTTP method (GET/POST etc.) and endpoint.
+	 * Appends request metadata (method, endpoint) to all logs.
 	 *
 	 * @default true
 	 */
 	enableRequestMetadata: boolean;
 	/**
-	 * Enables internal request logs. Includes a response message that specifies the requests duration.
+	 * Logs request start and finish with duration. Includes response status code.
 	 *
 	 * @default true
 	 */
 	enableRequestLogging: boolean;
 	/**
-	 * Override the default message printed when a request arrives to the server. Will be silenced if `enableInternalLogs` is off.
+	 * Message printed when a request arrives. Silenced if `enableRequestLogging` is `false`.
 	 *
 	 * @default 'Request started'
 	 */
 	customReceivedMessage: string;
 	/**
-	 * Override the default message printed when a request is finished. Will be silenced if `enableInternalLogs` is off.
+	 * Message printed when a request completes. Silenced if `enableRequestLogging` is `false`.
 	 *
 	 * @default 'Request finished'
 	 */
 	customFinishedMessage: string;
 	/**
-	 * Override the default request id label in each log.
+	 * Label for request ID in logs.
 	 *
 	 * @default 'requestId'
 	 */
 	requestIdLogLabel: string;
 	/**
-	 * Appends all properties to every log throughout the whole request lifecycle.
-	 * Can be useful for things like `entityId`, `userDetails`, `operationName` and more.
+	 * Extracts custom properties from request to append to all logs.
 	 *
-	 * @param {TReq} req Should be used to extract any metadata from the request
-	 * @returns {LogMetadata}
+	 * @param req - Request object
+	 * @returns Metadata object or undefined
 	 */
 	customProps?: (req: TReq) => LogMetadata | undefined;
 	/**
-	 * Appends request id to every log throughout the whole request lifecycle.
+	 * Extracts or generates request ID. If undefined, a UUID is generated.
 	 *
-	 * @default uuid
-	 * @param {TReq} req Can be used in cases where you want to reuse a request id from a header or the body
-	 * @returns {string}
+	 * @param req - Request object
+	 * @returns Request ID string or undefined
 	 */
 	getRequestId?: (req: TReq) => string | undefined;
 };
 
 export type RouteConfig<TReq extends Request = any> = {
 	/**
-	 * The endpoint to be exposed for client logs.
+	 * Endpoint path for receiving client logs.
 	 *
 	 * @default '/logger/write'
 	 */
 	endpoint: string;
 	/**
-	 * Function that resolves to an 'origin' metadata, to be appended to each client log.
+	 * Resolves `origin` metadata for client logs. Defaults to 'client'.
 	 *
-	 * @default 'client'
+	 * @param req - Request object
+	 * @returns Origin string or undefined
 	 */
 	origin?: (req: TReq) => string | undefined;
 };
 
 export type WebFrameworkConfig<TReq extends Request = any> = {
 	/**
-	 * Route for printing logs sent from an external source (e.g. your client application).
-	 *
-	 * @default undefined
+	 * Client logs endpoint configuration.
 	 */
 	route?: Partial<RouteConfig<TReq>>;
 	/**
-	 * Middleware that expands the capabilities of your logger
+	 * Middleware configuration for request metadata and logging.
 	 */
 	middleware: Partial<MiddlewareConfig<TReq>>;
 };
 
 export type LoggerConfig = {
 	/**
-	 * Lowest level of printing logs.
-	 * For example, when setting this to `warn`, any `debug`/`info` logs will be ignored and not printed.
+	 * Minimum log level. Logs below this level are ignored.
 	 *
 	 * @default 'info'
 	 */
 	minLogLevel: LogLevel;
 	/**
-	 * Default metadata to be appended to every log.
-	 * Common use cases are `systemName (Todolist)` or `serviceName (user-service)`.
+	 * Default metadata appended to every log (e.g., serviceName, systemName).
 	 */
 	defaultMetadata: LogMetadata;
 	/**
-	 * If set to `true`, will print human readable logs.
-	 * Be cautious setting this, as it can break your logs in production.
+	 * Enables human-readable, colorized output. Use with caution in production.
 	 *
 	 * @default false
 	 */

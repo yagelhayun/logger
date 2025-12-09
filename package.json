@@ -62,18 +62,16 @@
   "peerDependencies": {
     "@nestjs/common": ">=7.0.0",
     "@nestjs/core": ">=7.0.0",
-    "@types/express": "4.x.x",
+    "@nestjs/platform-express": ">=7.0.0",
+    "@nestjs/platform-fastify": ">=7.0.0",
     "express": "4.x.x",
     "fastify": "4.x.x",
-    "lodash.merge": ">=4.6.2",
+    "lodash.merge": "4.x.x",
     "uuid": ">=8.0.0",
     "rxjs": ">=6.6.0",
     "zod": "3.x.x"
   },
   "peerDependenciesMeta": {
-    "@types/express": {
-      "optional": true
-    },
     "express": {
       "optional": true
     },
@@ -84,6 +82,12 @@
       "optional": true
     },
     "@nestjs/core": {
+      "optional": true
+    },
+    "@nestjs/platform-express": {
+      "optional": true
+    },
+    "@nestjs/platform-fastify": {
       "optional": true
     },
     "rxjs": {
