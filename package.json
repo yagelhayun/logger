@@ -1,6 +1,6 @@
 {
   "name": "@yagelhayun/logger",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "JSON Logger with superpowers",
   "files": [
     "dist/**",
