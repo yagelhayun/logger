@@ -377,3 +377,22 @@ setLogMetadata('user', { email: 'john@example.com' });
     // Later in your code flow
     setLogMetadata('processingEntity', { entityId: '456', entityType: 'user' });
     ```
+
+## Development
+
+### Testing
+
+Unit tests use [Vitest](https://vitest.dev/) and cover:
+
+- `attachLogContext` – async context isolation and metadata propagation
+- `setLogMetadata` – merging and context scoping
+- `createLogger` – config, levels, default metadata
+- `applyExpressLogger` / `applyFastifyLogger` – middleware, client logs route, exclude paths
+- `applyExpressNestLogger` / `applyFastifyNestLogger` – interceptor registration
+
+```bash
+npm test          # run once
+npm run test:watch  # watch mode
+```
+
+Full Nest integration tests (with real Nest apps) should be run in your application or in dedicated test projects (e.g. `F:\Codes\logger-tests`), since Vitest’s esbuild-based transpiler does not support TypeScript’s `emitDecoratorMetadata` required by Nest decorators.
