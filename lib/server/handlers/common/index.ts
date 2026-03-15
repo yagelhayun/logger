@@ -1,4 +1,4 @@
-import { v4 } from 'uuid';
+import { randomBytes, randomUUID } from 'crypto';
 import type { Logger } from 'winston';
 import type {
 	ClientLogs,
@@ -33,6 +33,14 @@ export const defaultRouteConfig: RouteConfig = {
 	endpoint: CLIENT_LOGS_ENDPOINT
 };
 
+const generateRequestId = (): string => {
+	if (typeof randomUUID === 'function') {
+		return randomUUID();
+	}
+
+	return randomBytes(16).toString('hex');
+};
+
 /**
  * Sets request metadata in the async context.
  *
@@ -43,7 +51,8 @@ export const setRequestMetadata = (
 	middlewareConfig: MiddlewareConfig
 ) => {
 	const customProps: LogMetadata = middlewareConfig.customProps?.(req) || {};
-	const requestId: string = middlewareConfig.getRequestId?.(req) || v4();
+	const requestId: string =
+		middlewareConfig.getRequestId?.(req) || generateRequestId();
 
 	Object.entries(customProps).forEach(([key, value]: [string, any]) => {
 		setLogMetadata(key, value);
