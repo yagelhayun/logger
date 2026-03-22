@@ -24,9 +24,10 @@ export interface FastifyReply {
 export type FastifyNextFunction = (err?: Error) => void;
 
 /**
- * Minimal Fastify instance interface the logger accesses internally.
- * Structurally compatible with fastify.FastifyInstance.
- * @internal
+ * Minimal structural type for Fastify applications.
+ * Uses Fastify-specific methods (`addHook`) that Express apps don't have,
+ * so TypeScript rejects Express apps at call sites without needing
+ * `fastify` installed in the consumer project.
  */
 export interface FastifyApp {
 	addHook(event: string, handler: any): FastifyApp;

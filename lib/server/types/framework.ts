@@ -26,3 +26,29 @@ export type Request = BaseRequest;
 
 /** @internal */
 export type Response = BaseResponse;
+
+/**
+ * Minimal structural type for NestJS Express applications.
+ * Uses Express-specific methods (`set`, `engine`) that Fastify apps don't have,
+ * so TypeScript rejects Fastify apps at call sites without needing
+ * `@nestjs/platform-express` installed in the consumer project.
+ */
+export interface NestExpressLike {
+	set(...args: any[]): this;
+	engine(...args: any[]): this;
+	useGlobalInterceptors(...interceptors: any[]): this;
+	getHttpAdapter(): any;
+}
+
+/**
+ * Minimal structural type for NestJS Fastify applications.
+ * Uses Fastify-specific methods (`register`, `inject`) that Express apps don't have,
+ * so TypeScript rejects Express apps at call sites without needing
+ * `@nestjs/platform-fastify` installed in the consumer project.
+ */
+export interface NestFastifyLike {
+	register(...args: any[]): Promise<any>;
+	inject(...args: any[]): any;
+	useGlobalInterceptors(...interceptors: any[]): this;
+	getHttpAdapter(): any;
+}

@@ -24,9 +24,10 @@ export interface ExpressResponse {
 export type ExpressNextFunction = () => void;
 
 /**
- * Minimal Express application interface the logger accesses internally.
- * Structurally compatible with express.Application.
- * @internal
+ * Minimal structural type for Express applications.
+ * Uses Express-specific methods (`use`) that Fastify apps don't have,
+ * so TypeScript rejects Fastify apps at call sites without needing
+ * `express` installed in the consumer project.
  */
 export interface ExpressApp {
 	use(...handlers: any[]): any;

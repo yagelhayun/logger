@@ -1,14 +1,14 @@
 import type { Logger } from 'winston';
 import type { FastifyRequest } from 'fastify';
 import type { Request as ExpressRequest } from 'express';
-import type { NestExpressApplication } from '@nestjs/platform-express';
-import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { ExecutionContext } from '@nestjs/common';
 import type {
 	MiddlewareConfig,
 	RouteConfig,
 	WebFrameworkConfig,
-	Request
+	Request,
+	NestExpressLike,
+	NestFastifyLike
 } from '../../types';
 import {
 	defaultMiddlewareConfig,
@@ -67,9 +67,9 @@ export const getRequest = <TReq extends Request>(
 
 type AppForInterceptor<TInterceptor> =
 	TInterceptor extends typeof ExpressLoggerInterceptor
-		? NestExpressApplication
+		? NestExpressLike
 		: TInterceptor extends typeof FastifyLoggerInterceptor
-		? NestFastifyApplication
+		? NestFastifyLike
 		: never;
 
 type RequestForInterceptor<TInterceptor> =
