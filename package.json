@@ -1,6 +1,6 @@
 {
   "name": "@yagelhayun/logger",
-  "version": "0.1.0-alpha.7",
+  "version": "0.1.0-alpha.8",
   "description": "JSON Logger with superpowers",
   "files": [
     "dist/**",
@@ -34,8 +34,7 @@
     "prebuild": "rm -rf dist",
     "build": "tsc",
     "prepack": "rm -f *.tgz && npm run build",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "vitest run"
   },
   "keywords": [
     "logger",
@@ -46,8 +45,8 @@
   "author": "Yagel Hayun",
   "license": "ISC",
   "dependencies": {
-    "winston": "^3.19.0",
     "lodash.merge": "^4.6.2",
+    "winston": "^3.19.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -56,11 +55,11 @@
     "@nestjs/platform-express": "^7.6.18",
     "@nestjs/platform-fastify": "^7.6.18",
     "@types/express": "^4.17.21",
-    "express": "^4.0.0",
     "@types/lodash.merge": "^4.6.7",
     "@types/node": "^20.11.17",
     "@types/supertest": "^6.0.3",
     "@types/uuid": "^9.0.8",
+    "express": "^4.0.0",
     "fastify": "^4.25.2",
     "rxjs": "^6.6.0",
     "supertest": "^7.2.2",

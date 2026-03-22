@@ -108,4 +108,12 @@ export type LoggerConfig = {
 	 * @default false
 	 */
 	isLocal: boolean;
+	/**
+	 * Sensitive values to scan for and replace with `[REDACTED]` anywhere they appear in a log.
+	 * Matches substrings, so a secret embedded inside a URL or error message is also caught.
+	 *
+	 * @example [process.env.API_KEY, process.env.DB_PASSWORD]
+	 * @default []
+	 */
+	redactValues: string[];
 };

@@ -7,11 +7,13 @@ import {
 import type { LoggerConfig } from '../types';
 import { errorReplacer } from './errors';
 import { getLogMetadata } from './metadata';
+import { createRedactValuesFormatter } from './redact';
 
 const defaultLoggerConfig: LoggerConfig = {
 	isLocal: false,
 	minLogLevel: 'info',
-	defaultMetadata: {}
+	defaultMetadata: {},
+	redactValues: []
 };
 
 const metadataFormatter = format((info) => {
@@ -32,6 +34,7 @@ export const createLogger = (partialConfig?: Partial<LoggerConfig>): Logger => {
 
 	const formatters = [
 		metadataFormatter(),
+		...(config.redactValues.length > 0 ? [createRedactValuesFormatter(config.redactValues)()] : []),
 		format.timestamp(),
 		format.json({ replacer: errorReplacer })
 	];

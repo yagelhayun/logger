@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { createTestLogger } from './helpers';
 
+const REDACTED = '[REDACTED]';
+
 describe('createLogger', () => {
 	it('creates a logger with default config', () => {
 		const { logger, capture } = createTestLogger();
@@ -35,6 +37,45 @@ describe('createLogger', () => {
 
 		expect(log.service).toBe('test-service');
 		expect(log.env).toBe('test');
+	});
+
+describe('redactValues', () => {
+		it('redacts a known secret value in logs', () => {
+			const { logger, capture } = createTestLogger({ redactValues: ['supersecret'] });
+
+			logger.info('msg', { token: 'supersecret' });
+			const log = capture.getLogs()[0];
+
+			expect(log.token).toBe(REDACTED);
+		});
+
+		it('redacts a secret embedded within a string', () => {
+			const { logger, capture } = createTestLogger({ redactValues: ['my-api-key'] });
+
+			logger.info('msg', { url: 'https://api.example.com?key=my-api-key&foo=bar' });
+			const log = capture.getLogs()[0] as any;
+
+			expect(log.url).not.toContain('my-api-key');
+			expect(log.url).toContain(REDACTED);
+		});
+
+		it('redacts secrets in nested objects', () => {
+			const { logger, capture } = createTestLogger({ redactValues: ['topsecret'] });
+
+			logger.info('msg', { auth: { bearer: 'topsecret' } });
+			const log = capture.getLogs()[0] as any;
+
+			expect(log.auth.bearer).toBe(REDACTED);
+		});
+
+		it('does not redact when values is empty', () => {
+			const { logger, capture } = createTestLogger({ redactValues: [] });
+
+			logger.info('msg', { token: 'supersecret' });
+			const log = capture.getLogs()[0];
+
+			expect(log.token).toBe('supersecret');
+		});
 	});
 
 	it('supports all log levels', () => {
