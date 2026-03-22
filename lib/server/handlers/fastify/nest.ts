@@ -4,7 +4,7 @@ import type {
 	NestInterceptor
 } from '@nestjs/common';
 import type { Observable } from 'rxjs';
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from '../../types';
 import type { Logger } from 'winston';
 import type { MiddlewareConfig } from '../../types';
 import { setRequestMetadata } from '../common';

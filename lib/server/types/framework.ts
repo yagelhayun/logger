@@ -1,25 +1,28 @@
-import type {
-	FastifyRequest,
-	FastifyReply,
-	HookHandlerDoneFunction as FastifyNextFunction
-} from 'fastify';
-import type {
-	Request as ExpressRequest,
-	Response as ExpressResponse,
-	NextFunction as ExpressNextFunction
-} from 'express';
-
 /**
+ * Minimal request interface the logger accesses internally.
+ * Structurally compatible with express.Request and fastify.FastifyRequest.
  * @internal
  */
-export type Request = ExpressRequest | FastifyRequest;
+export interface BaseRequest {
+	url: string;
+	method: string;
+	body?: unknown;
+}
 
 /**
+ * Minimal response interface for the client logs route.
+ * Structurally compatible with express.Response and fastify.FastifyReply.
  * @internal
  */
-export type Response = ExpressResponse | FastifyReply;
+export interface BaseResponse {
+	status(code: number): { send(body: string): unknown };
+}
 
-/**
- * @internal
- */
-export type NextFunction = ExpressNextFunction | FastifyNextFunction;
+/** @internal */
+export type NextFunction = (err?: Error) => void;
+
+/** @internal */
+export type Request = BaseRequest;
+
+/** @internal */
+export type Response = BaseResponse;

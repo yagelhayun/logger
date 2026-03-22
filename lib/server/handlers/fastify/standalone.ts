@@ -1,9 +1,9 @@
 import type {
-	FastifyInstance,
 	FastifyRequest,
 	FastifyReply,
-	HookHandlerDoneFunction as FastifyNextFunction
-} from 'fastify';
+	FastifyNextFunction,
+	FastifyApp
+} from '../../types';
 import type { Logger } from 'winston';
 import {
 	defaultRouteConfig,
@@ -23,7 +23,7 @@ import type {
  * @internal
  */
 const requestLifecycleLoggingMiddleware = (
-	app: FastifyInstance,
+	app: FastifyApp,
 	logger: Logger,
 	middlewareConfig: MiddlewareConfig<FastifyRequest>
 ): void => {
@@ -81,7 +81,7 @@ const requestLifecycleLoggingMiddleware = (
  * ```
  */
 export const applyFastifyLogger = (
-	app: FastifyInstance,
+	app: FastifyApp,
 	logger: Logger,
 	partialConfig?: WebFrameworkConfig<FastifyRequest>
 ) => {

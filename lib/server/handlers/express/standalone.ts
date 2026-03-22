@@ -1,9 +1,9 @@
 import type {
-	Application as ExpressApplication,
-	Request as ExpressRequest,
-	Response as ExpressResponse,
-	NextFunction as ExpressNextFunction
-} from 'express';
+	ExpressRequest,
+	ExpressResponse,
+	ExpressNextFunction,
+	ExpressApp
+} from '../../types';
 import type { Logger } from 'winston';
 import { performance } from 'perf_hooks';
 import {
@@ -71,7 +71,7 @@ const requestLifecycleLoggingMiddleware =
  * ```
  */
 export const applyExpressLogger = (
-	app: ExpressApplication,
+	app: ExpressApp,
 	logger: Logger,
 	partialConfig?: WebFrameworkConfig<ExpressRequest>
 ) => {
