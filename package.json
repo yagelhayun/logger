@@ -46,7 +46,9 @@
   "author": "Yagel Hayun",
   "license": "ISC",
   "dependencies": {
-    "winston": "^3.19.0"
+    "winston": "^3.19.0",
+    "lodash.merge": "^4.6.2",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@nestjs/common": "^7.6.13",
@@ -59,21 +61,17 @@
     "@types/supertest": "^6.0.3",
     "@types/uuid": "^9.0.8",
     "fastify": "^4.25.2",
-    "lodash.merge": "^4.6.2",
     "rxjs": "^6.6.0",
     "supertest": "^7.2.2",
     "typescript": "^5.3.3",
-    "vitest": "^2.1.9",
-    "zod": "^3.25.76"
+    "vitest": "^2.1.9"
   },
   "peerDependencies": {
     "@nestjs/common": ">=7.0.0",
     "@nestjs/core": ">=7.0.0",
     "express": "4.x.x",
     "fastify": "4.x.x",
-    "lodash.merge": "4.x.x",
-    "rxjs": ">=6.6.0",
-    "zod": "3.x.x"
+    "rxjs": ">=6.6.0"
   },
   "peerDependenciesMeta": {
     "@nestjs/common": {

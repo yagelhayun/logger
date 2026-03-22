@@ -3,7 +3,7 @@ import type {
 	ExecutionContext,
 	NestInterceptor
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { performance } from 'perf_hooks';
 import type {
 	Request as ExpressRequest,
@@ -37,6 +37,8 @@ export class ExpressLoggerInterceptor implements NestInterceptor {
 		context: ExecutionContext,
 		next: CallHandler
 	): Observable<unknown> {
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		const { Observable } = require('rxjs') as typeof import('rxjs');
 		const req = getRequest<ExpressRequest>(context);
 
 		if (!req || this.middlewareConfig.excludePaths.includes(req.url)) {

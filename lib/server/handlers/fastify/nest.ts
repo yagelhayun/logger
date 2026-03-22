@@ -3,7 +3,7 @@ import type {
 	ExecutionContext,
 	NestInterceptor
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import type { Logger } from 'winston';
 import type { MiddlewareConfig } from '../../types';
@@ -32,6 +32,8 @@ export class FastifyLoggerInterceptor implements NestInterceptor {
 		context: ExecutionContext,
 		next: CallHandler
 	): Observable<unknown> {
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		const { Observable } = require('rxjs') as typeof import('rxjs');
 		const req = getRequest<FastifyRequest>(context);
 
 		if (!req || this.middlewareConfig.excludePaths.includes(req.url)) {
