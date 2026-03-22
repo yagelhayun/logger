@@ -1,11 +1,11 @@
 import Transport from 'winston-transport';
-import type { Logger } from 'winston';
+import { transports, type Logger } from 'winston';
 import { createLogger } from '../lib/server/logger';
 
 /**
  * Transport that captures log info objects for assertions.
  */
-class CaptureTransport extends Transport {
+export class CaptureTransport extends Transport {
 	logs: Record<string, unknown>[] = [];
 
 	constructor(opts?: Transport.TransportStreamOptions) {
@@ -35,6 +35,10 @@ export function createTestLogger(
 ): { logger: Logger; capture: CaptureTransport } {
 	const capture = new CaptureTransport({ level: 'verbose' });
 	const logger = createLogger(config);
+	// Remove the Console transport so tests don't pollute stdout.
+	logger.transports
+		.filter((t) => t instanceof transports.Console)
+		.forEach((t) => logger.remove(t));
 	logger.add(capture);
 	return { logger, capture };
 }

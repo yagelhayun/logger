@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { attachLogContext } from '../lib/server/async_hooks';
-import { setLogMetadata } from '../lib/server/logger/metadata';
+import { setLogMetadata, getLogMetadata } from '../lib/server/logger/metadata';
 import { createTestLogger } from './helpers';
 
 describe('setLogMetadata', () => {
@@ -32,6 +32,20 @@ describe('setLogMetadata', () => {
 		expect(parsed.nested).toEqual({ a: 1, b: 3, c: 4 });
 	});
 
+	it('merges arrays by index (lodash.merge behavior)', () => {
+		const { logger, capture } = createTestLogger();
+
+		attachLogContext(() => {
+			setLogMetadata('tags', ['a', 'b', 'c']);
+			setLogMetadata('tags', ['x']); // only replaces index 0, keeps rest
+			logger.info('test');
+		});
+
+		const log = capture.getLogs()[0] as any;
+		// lodash.merge treats arrays like objects keyed by index
+		expect(log.tags).toEqual(['x', 'b', 'c']);
+	});
+
 	it('does not leak metadata outside context', () => {
 		const { logger, capture } = createTestLogger({ isLocal: false });
 
@@ -47,5 +61,25 @@ describe('setLogMetadata', () => {
 		const outside = capture.getLogs()[1];
 		expect(inside.secret).toBe('inside');
 		expect(outside.secret).toBeUndefined();
+	});
+
+	describe('getLogMetadata', () => {
+		it('returns empty object when called outside any context', () => {
+			const metadata = getLogMetadata();
+
+			expect(metadata).toEqual({});
+		});
+
+		it('returns accumulated metadata within a context', () => {
+			let metadata: Record<string, unknown> = {};
+
+			attachLogContext(() => {
+				setLogMetadata('key', 'value');
+				setLogMetadata('other', 42);
+				metadata = getLogMetadata();
+			});
+
+			expect(metadata).toMatchObject({ key: 'value', other: 42 });
+		});
 	});
 });

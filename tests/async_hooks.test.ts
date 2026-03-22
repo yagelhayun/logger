@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { attachLogContext } from '../lib/server/async_hooks';
-import { setLogMetadata } from '../lib/server/logger/metadata';
+import { setLogMetadata, getLogMetadata } from '../lib/server/logger/metadata';
 import { createTestLogger } from './helpers';
 
 describe('attachLogContext', () => {
@@ -12,24 +12,49 @@ describe('attachLogContext', () => {
 		expect(executed).toBe(true);
 	});
 
-	it('isolates context between nested calls', () => {
-		const outerValues: string[] = [];
-		const innerValues: string[] = [];
+	it('propagates context across await boundaries', async () => {
+		let value: unknown;
 
-		attachLogContext(() => {
-			setLogMetadata('key', 'outer');
-			outerValues.push('outer-set');
-
-			attachLogContext(() => {
-				setLogMetadata('key', 'inner');
-				innerValues.push('inner-set');
+		await new Promise<void>((resolve) => {
+			attachLogContext(async () => {
+				setLogMetadata('asyncKey', 'asyncValue');
+				await new Promise((r) => setTimeout(r, 0));
+				value = getLogMetadata().asyncKey;
+				resolve();
 			});
-
-			outerValues.push('outer-after-inner');
 		});
 
-		expect(outerValues).toEqual(['outer-set', 'outer-after-inner']);
-		expect(innerValues).toEqual(['inner-set']);
+		expect(value).toBe('asyncValue');
+	});
+
+	it('isolates nested contexts — inner changes do not affect outer', () => {
+		let outerMetadataAfterInner: Record<string, unknown> = {};
+
+		attachLogContext(() => {
+			setLogMetadata('shared', 'outer-value');
+
+			attachLogContext(() => {
+				setLogMetadata('shared', 'inner-value');
+			});
+
+			outerMetadataAfterInner = getLogMetadata();
+		});
+
+		expect(outerMetadataAfterInner.shared).toBe('outer-value');
+	});
+
+	it('outer context metadata is not visible inside nested context', () => {
+		let innerMetadata: Record<string, unknown> = {};
+
+		attachLogContext(() => {
+			setLogMetadata('outerOnly', 'exists');
+
+			attachLogContext(() => {
+				innerMetadata = getLogMetadata();
+			});
+		});
+
+		expect(innerMetadata.outerOnly).toBeUndefined();
 	});
 
 	it('propagates metadata to logger within context', () => {
@@ -41,10 +66,22 @@ describe('attachLogContext', () => {
 			logger.info('test message');
 		});
 
-		expect(capture.getLogs().length).toBeGreaterThan(0);
 		const parsed = capture.getLogs()[0];
 		expect(parsed.requestId).toBe('test-123');
 		expect(parsed.custom).toEqual({ foo: 'bar' });
 		expect(parsed.message).toBe('test message');
+	});
+
+	it('metadata does not appear in logs outside of context', () => {
+		const { logger, capture } = createTestLogger();
+
+		attachLogContext(() => {
+			setLogMetadata('requestId', 'abc');
+		});
+
+		logger.info('outside');
+		const log = capture.getLogs()[0];
+
+		expect(log.requestId).toBeUndefined();
 	});
 });
