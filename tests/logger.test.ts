@@ -76,6 +76,15 @@ describe('redactValues', () => {
 
 			expect(log.token).toBe('supersecret');
 		});
+
+		it('does not mutate the original object passed to the logger', () => {
+			const { logger } = createTestLogger({ redactValues: ['supersecret'] });
+
+			const event = { headers: { 'x-secret-token': 'supersecret' } };
+			logger.info('msg', { event });
+
+			expect(event.headers['x-secret-token']).toBe('supersecret');
+		});
 	});
 
 	it('supports all log levels', () => {
