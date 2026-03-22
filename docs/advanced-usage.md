@@ -64,14 +64,14 @@ setLogMetadata('user', { email: 'john@example.com' });
 
 ## Common Use Cases
 
--   **Adding database query results:**
+- **Adding database query results:**
 
     ```js
     const entities = await query('SELECT entity_name from entities');
     setLogMetadata('entities', { count: entities.length, entities });
     ```
 
--   **Adding HTTP request results:**
+- **Adding HTTP request results:**
 
     ```js
     const response = await fetch('https://api.example.com/entities');
@@ -79,29 +79,8 @@ setLogMetadata('user', { email: 'john@example.com' });
     setLogMetadata('apiResponse', { status: response.status, data });
     ```
 
--   **Adding context at specific points in your code:**
+- **Adding context at specific points in your code:**
     ```js
     // Later in your code flow
     setLogMetadata('processingEntity', { entityId: '456', entityType: 'user' });
     ```
-
-## Retrieving Current Log Metadata
-
-To retrieve the current metadata associated with the active log context, you can import the internal `getLogMetadata` function via a direct import:
-
-```js
-import { getLogMetadata } from '@yagelhayun/logger/server/logger/metadata';
-
-const main = () => {
-	setLogMetadata('userId', '123');
-	setLogMetadata('action', 'login');
-
-	// Get all accumulated metadata
-	const metadata = getLogMetadata();
-	console.log(metadata); // { userId: '123', action: 'login' }
-};
-
-attachLogContext(main);
-```
-
-**Note:** This function is intended for advanced scenarios. Most use cases should rely on logging directly via `logger.info()` etc., which automatically includes all context metadata.

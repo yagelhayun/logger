@@ -114,18 +114,7 @@ applyExpressLogger(app, logger, {
 import { createLogger, applyFastifyLogger } from '@yagelhayun/logger/server';
 import Fastify from 'fastify';
 
-const app = Fastify();
-const logger = createLogger();
-
-applyFastifyLogger(app, logger, {
-	middleware: {
-		customProps: (req) => ({
-			userId: req.user?.id,
-			operationName: req.body?.operationName
-		}),
-		getRequestId: (req) => req.headers['request-id']
-	}
-});
+// Same setup as Express, but use applyFastifyLogger and NestFastifyApplication
 ```
 
 ### NestJS Integration
@@ -234,5 +223,3 @@ Unit tests use [Vitest](https://vitest.dev/) and cover:
 npm test            # run once
 npm run test:watch  # watch mode
 ```
-
-Full Nest integration tests (with real Nest apps) should be run in your application or in dedicated test projects (e.g. `F:\Codes\logger-tests`), since Vitest's esbuild-based transpiler does not support TypeScript's `emitDecoratorMetadata` required by Nest decorators.
