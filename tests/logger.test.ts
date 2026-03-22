@@ -96,6 +96,42 @@ describe('createLogger', () => {
 		});
 	});
 
+	describe('logUnhandledExceptions', () => {
+		it('registers exception and rejection handlers when enabled', () => {
+			const logger = createLogger({ logUnhandledExceptions: true });
+
+			expect(logger.exceptions.handlers.size).toBeGreaterThan(0);
+			expect(logger.rejections.handlers.size).toBeGreaterThan(0);
+
+			logger.close(); // deregisters process listeners
+		});
+
+		it('does not register exception or rejection handlers by default', () => {
+			const logger = createLogger();
+
+			expect(logger.exceptions.handlers.size).toBe(0);
+			expect(logger.rejections.handlers.size).toBe(0);
+
+			logger.close();
+		});
+
+		it('sets exitOnError to true when logUnhandledExceptions is enabled', () => {
+			const logger = createLogger({ logUnhandledExceptions: true });
+
+			expect(logger.exitOnError).toBe(true);
+
+			logger.close();
+		});
+
+		it('keeps exitOnError false by default', () => {
+			const logger = createLogger();
+
+			expect(logger.exitOnError).toBe(false);
+
+			logger.close();
+		});
+	});
+
 	describe('error serialization', () => {
 		it('serializes Error objects with message, stack, and type', () => {
 			const { logger, capture } = createTestLogger();

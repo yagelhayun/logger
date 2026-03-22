@@ -13,7 +13,8 @@ const defaultLoggerConfig: LoggerConfig = {
 	isLocal: false,
 	minLogLevel: 'info',
 	defaultMetadata: {},
-	redactValues: []
+	redactValues: [],
+	logUnhandledExceptions: false
 };
 
 const metadataFormatter = format((info) => {
@@ -48,6 +49,10 @@ export const createLogger = (partialConfig?: Partial<LoggerConfig>): Logger => {
 		defaultMeta: config.defaultMetadata,
 		format: format.combine(...formatters),
 		level: config.minLogLevel,
-		exitOnError: false
+		exitOnError: config.logUnhandledExceptions,
+		...(config.logUnhandledExceptions && {
+			exceptionHandlers: [new transports.Console()],
+			rejectionHandlers: [new transports.Console()]
+		})
 	});
 };

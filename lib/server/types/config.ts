@@ -116,4 +116,11 @@ export type LoggerConfig = {
 	 * @default []
 	 */
 	redactValues: string[];
+	/**
+	 * Automatically logs uncaught exceptions and unhandled promise rejections,
+	 * then exits the process so a process manager (e.g. PM2) can restart it cleanly.
+	 *
+	 * @default false
+	 */
+	logUnhandledExceptions: boolean;
 };
