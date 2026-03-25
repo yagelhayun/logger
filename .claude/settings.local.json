@@ -4,8 +4,7 @@
       "Bash(npm info:*)",
       "Bash(npm install:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx vitest:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npx vitest:*)"
     ]
   }
 }

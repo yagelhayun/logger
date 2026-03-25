@@ -48,7 +48,7 @@ function redactObject(
 		const val = obj[key];
 		const redacted = redactValue(val, pattern);
 		if (redacted !== val) {
-			if (!result) result = { ...obj }; // lazy clone on first change
+			if (!result) result = { ...obj };
 			result[key] = redacted;
 		}
 	}

@@ -10,7 +10,7 @@ describe('setLogMetadata', () => {
 		attachLogContext(() => {
 			setLogMetadata('a', 1);
 			setLogMetadata('b', 2);
-			setLogMetadata('a', 3); // overwrite
+			setLogMetadata('a', 3);
 			logger.info('merged');
 		});
 
@@ -24,7 +24,7 @@ describe('setLogMetadata', () => {
 
 		attachLogContext(() => {
 			setLogMetadata('nested', { a: 1, b: 2 });
-			setLogMetadata('nested', { b: 3, c: 4 }); // merge
+			setLogMetadata('nested', { b: 3, c: 4 });
 			logger.info('nested');
 		});
 

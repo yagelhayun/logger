@@ -5,7 +5,7 @@ import {
 	createLogger as createWinstonLogger
 } from 'winston';
 import type { LoggerConfig } from '../types';
-import { errorReplacer } from './errors';
+import { errorFormatter, errorReplacer } from './errors';
 import { getLogMetadata } from './metadata';
 import { createRedactValuesFormatter } from './redact';
 
@@ -35,8 +35,11 @@ export const createLogger = (partialConfig?: Partial<LoggerConfig>): Logger => {
 
 	const formatters = [
 		metadataFormatter(),
-		...(config.redactValues.length > 0 ? [createRedactValuesFormatter(config.redactValues)()] : []),
+		...(config.redactValues.length > 0
+			? [createRedactValuesFormatter(config.redactValues)()]
+			: []),
 		format.timestamp(),
+		errorFormatter(),
 		format.json({ replacer: errorReplacer })
 	];
 

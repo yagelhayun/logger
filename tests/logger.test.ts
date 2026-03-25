@@ -50,7 +50,9 @@ describe('createLogger', () => {
 
 	describe('log levels', () => {
 		it('emits logs at and above minLogLevel', () => {
-			const { logger, capture } = createTestLogger({ minLogLevel: 'warn' });
+			const { logger, capture } = createTestLogger({
+				minLogLevel: 'warn'
+			});
 
 			logger.warn('warn');
 			logger.error('error');
@@ -83,7 +85,9 @@ describe('createLogger', () => {
 		it('supports verbose, info, warn, and error when minLogLevel is verbose', () => {
 			// In npm log levels, debug (5) is more verbose than verbose (4) and is
 			// therefore filtered out when the transport level is set to 'verbose'.
-			const { logger, capture } = createTestLogger({ minLogLevel: 'verbose' });
+			const { logger, capture } = createTestLogger({
+				minLogLevel: 'verbose'
+			});
 
 			logger.verbose('v');
 			logger.debug('d');
@@ -103,7 +107,7 @@ describe('createLogger', () => {
 			expect(logger.exceptions.handlers.size).toBeGreaterThan(0);
 			expect(logger.rejections.handlers.size).toBeGreaterThan(0);
 
-			logger.close(); // deregisters process listeners
+			logger.close();
 		});
 
 		it('does not register exception or rejection handlers by default', () => {
@@ -152,7 +156,9 @@ describe('createLogger', () => {
 	describe('redactValues', () => {
 		describe('basic redaction', () => {
 			it('redacts an exact match value', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['supersecret'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['supersecret']
+				});
 
 				logger.info('msg', { token: 'supersecret' });
 				const log = capture.getLogs()[0];
@@ -161,9 +167,13 @@ describe('createLogger', () => {
 			});
 
 			it('redacts a secret embedded within a larger string', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['my-api-key'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['my-api-key']
+				});
 
-				logger.info('msg', { url: 'https://api.example.com?key=my-api-key&foo=bar' });
+				logger.info('msg', {
+					url: 'https://api.example.com?key=my-api-key&foo=bar'
+				});
 				const log = capture.getLogs()[0] as any;
 
 				expect(log.url).not.toContain('my-api-key');
@@ -171,7 +181,9 @@ describe('createLogger', () => {
 			});
 
 			it('redacts multiple occurrences of the same secret within one string', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['tok'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['tok']
+				});
 
 				logger.info('msg', { value: 'tok123 and tok456' });
 				const log = capture.getLogs()[0] as any;
@@ -180,7 +192,9 @@ describe('createLogger', () => {
 			});
 
 			it('redacts a secret appearing in the log message itself', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['s3cr3t'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['s3cr3t']
+				});
 
 				logger.info('token is s3cr3t', {});
 				const log = capture.getLogs()[0];
@@ -190,9 +204,14 @@ describe('createLogger', () => {
 			});
 
 			it('redacts across multiple fields in the same log', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['abc123'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['abc123']
+				});
 
-				logger.info('msg', { fieldA: 'abc123', fieldB: 'prefix-abc123-suffix' });
+				logger.info('msg', {
+					fieldA: 'abc123',
+					fieldB: 'prefix-abc123-suffix'
+				});
 				const log = capture.getLogs()[0] as any;
 
 				expect(log.fieldA).toBe(REDACTED);
@@ -227,7 +246,9 @@ describe('createLogger', () => {
 
 		describe('nested structures', () => {
 			it('redacts secrets in nested objects', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['topsecret'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['topsecret']
+				});
 
 				logger.info('msg', { auth: { bearer: 'topsecret' } });
 				const log = capture.getLogs()[0] as any;
@@ -236,7 +257,9 @@ describe('createLogger', () => {
 			});
 
 			it('redacts secrets in deeply nested objects', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['deep'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['deep']
+				});
 
 				logger.info('msg', { a: { b: { c: { d: 'deep' } } } });
 				const log = capture.getLogs()[0] as any;
@@ -245,7 +268,9 @@ describe('createLogger', () => {
 			});
 
 			it('redacts secrets in arrays', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['tok'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['tok']
+				});
 
 				logger.info('msg', { tokens: ['tok', 'safe', 'tok'] });
 				const log = capture.getLogs()[0] as any;
@@ -254,9 +279,13 @@ describe('createLogger', () => {
 			});
 
 			it('redacts secrets in arrays of objects', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['tok'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['tok']
+				});
 
-				logger.info('msg', { items: [{ token: 'tok' }, { token: 'safe' }] });
+				logger.info('msg', {
+					items: [{ token: 'tok' }, { token: 'safe' }]
+				});
 				const log = capture.getLogs()[0] as any;
 
 				expect(log.items[0].token).toBe(REDACTED);
@@ -266,7 +295,9 @@ describe('createLogger', () => {
 
 		describe('edge cases', () => {
 			it('does not redact when redactValues is empty', () => {
-				const { logger, capture } = createTestLogger({ redactValues: [] });
+				const { logger, capture } = createTestLogger({
+					redactValues: []
+				});
 
 				logger.info('msg', { token: 'supersecret' });
 				const log = capture.getLogs()[0];
@@ -275,7 +306,9 @@ describe('createLogger', () => {
 			});
 
 			it('ignores empty strings in redactValues without corrupting output', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['', 'real-secret'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['', 'real-secret']
+				});
 
 				logger.info('msg', { token: 'real-secret', other: 'safe' });
 				const log = capture.getLogs()[0] as any;
@@ -296,7 +329,9 @@ describe('createLogger', () => {
 			});
 
 			it('passes non-string primitive values through unchanged', () => {
-				const { logger, capture } = createTestLogger({ redactValues: ['secret'] });
+				const { logger, capture } = createTestLogger({
+					redactValues: ['secret']
+				});
 
 				logger.info('msg', { count: 42, active: true, nothing: null });
 				const log = capture.getLogs()[0] as any;
@@ -307,7 +342,9 @@ describe('createLogger', () => {
 			});
 
 			it('does not mutate the original object passed to the logger', () => {
-				const { logger } = createTestLogger({ redactValues: ['supersecret'] });
+				const { logger } = createTestLogger({
+					redactValues: ['supersecret']
+				});
 
 				const event = { headers: { 'x-secret-token': 'supersecret' } };
 				logger.info('msg', { event });

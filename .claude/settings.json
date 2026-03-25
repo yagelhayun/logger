@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(npm test:*)",
+      "Bash(grep -v \"^$\")",
+      "WebFetch(domain:blog.appsignal.com)"
+    ]
+  }
+}
