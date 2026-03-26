@@ -33,12 +33,11 @@ export const errorFormatter = format((info) => {
 
 	const err = splat[0] as Error;
 
-	(info as Record<string, unknown>).type =
-		Object.getPrototypeOf(err).constructor.name;
+	info.type = Object.getPrototypeOf(err).constructor.name;
 	Object.assign(info, err);
 
 	if (isAggregateError(err)) {
-		(info as Record<string, unknown>).errors = err.errors.map((e) =>
+		info.errors = err.errors.map((e) =>
 			e instanceof Error ? serializeError(e) : e
 		);
 	}
