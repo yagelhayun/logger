@@ -36,28 +36,13 @@ export const getRequest = <TReq extends Request>(
 		try {
 			// Dynamic import to avoid requiring @nestjs/graphql as a hard dependency
 			const { GqlExecutionContext } = require('@nestjs/graphql');
-			const gqlContext = GqlExecutionContext.create(context);
-			const ctx = gqlContext.getContext();
-			// Apollo Server v3 stores the request in context.req
+			const ctx = GqlExecutionContext.create(context).getContext();
 			return ctx?.req || ctx?.request || null;
 		} catch {
-			// If @nestjs/graphql is not available, try to extract from context directly
-			const getArgs = (
-				context as unknown as { getArgs?: () => unknown[] }
-			).getArgs;
-			const getContext = (
-				context as unknown as {
-					getContext?: () => {
-						req?: TReq;
-						request?: TReq;
-					};
-				}
-			).getContext;
-			const ctx =
-				getContext?.() ||
-				(getArgs?.()?.[2] as
-					| { req?: TReq; request?: TReq }
-					| undefined);
+			// GraphQL resolvers receive (root, args, context, info) — context is at index 2.
+			const ctx = context.getArgs()[2] as
+				| { req?: TReq; request?: TReq }
+				| undefined;
 			return ctx?.req || ctx?.request || null;
 		}
 	}
@@ -69,15 +54,15 @@ type AppForInterceptor<TInterceptor> =
 	TInterceptor extends typeof ExpressLoggerInterceptor
 		? NestExpressLike
 		: TInterceptor extends typeof FastifyLoggerInterceptor
-		? NestFastifyLike
-		: never;
+			? NestFastifyLike
+			: never;
 
 type RequestForInterceptor<TInterceptor> =
 	TInterceptor extends typeof ExpressLoggerInterceptor
 		? ExpressRequest
 		: TInterceptor extends typeof FastifyLoggerInterceptor
-		? FastifyRequest
-		: never;
+			? FastifyRequest
+			: never;
 
 /**
  * Factory function that creates NestJS logger integration.
