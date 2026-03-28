@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { ExecutionContext } from '@nestjs/common';
-import { getRequest } from '../lib/server/handlers/common/nest';
+import { getRequest } from '../../lib/server/handlers/common/nest';
 
 /**
  * Builds a minimal mock ExecutionContext.

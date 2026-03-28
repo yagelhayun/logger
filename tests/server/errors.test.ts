@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { errorReplacer } from '../lib/server/logger/errors';
-import { createTestLogger } from './helpers';
+import { errorReplacer } from '../../lib/server/logger/errors';
+import { createTestLogger } from '../helpers';
 
 const serialize = (value: unknown) =>
 	JSON.parse(JSON.stringify({ err: value }, errorReplacer)).err;

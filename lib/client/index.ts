@@ -1,2 +1,2 @@
-export type { LoggerConfig } from './types';
-export { Logger, Logger as default } from './logger';
+export type { LoggerConfig, Logger } from './types';
+export { createLogger } from './logger';

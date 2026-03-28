@@ -4,7 +4,8 @@
       "Bash(npm info:*)",
       "Bash(npm install:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "WebSearch"
     ]
   }
 }

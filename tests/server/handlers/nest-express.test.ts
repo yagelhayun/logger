@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { applyExpressNestLogger } from '../lib/server/handlers/express';
-import { createTestLogger } from './helpers';
+import { applyExpressNestLogger } from '../../../lib/server/handlers/express';
+import { createTestLogger } from '../../helpers';
 
 /**
  * Nest integration tests require emitDecoratorMetadata (Jest/ts-jest).

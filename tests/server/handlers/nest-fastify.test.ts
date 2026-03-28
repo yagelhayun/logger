@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { applyFastifyNestLogger } from '../lib/server/handlers/fastify';
-import { createTestLogger } from './helpers';
+import { applyFastifyNestLogger } from '../../../lib/server/handlers/fastify';
+import { createTestLogger } from '../../helpers';
 
 /**
  * Nest integration tests require emitDecoratorMetadata (Jest/ts-jest).

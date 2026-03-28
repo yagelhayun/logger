@@ -52,20 +52,23 @@ Features:
 Send logs from browser to server with automatic batching:
 
 ```js
-import { Logger } from '@yagelhayun/logger/client';
+import { createLogger } from '@yagelhayun/logger/client';
 
-Logger.initialize('https://api.example.com', {
+const logger = createLogger('https://api.example.com', {
 	bufferSize: 10,
 	bufferFlushInterval: 30,
-	logEndpoint: '/logger/write',
-	getUserData: () => ({
-		userId: getCurrentUserId(),
-		sessionId: getSessionId()
-	})
+	logEndpoint: '/logger/write'
 });
 
-Logger.info('User clicked button', { buttonId: 'submit-form' });
-Logger.error('Failed to load data', { userId: '123' });
+// Attach ambient metadata to every log (e.g. user identity, current route)
+logger.addPayloadBuilder(() => ({
+	userId: getCurrentUserId(),
+	sessionId: getSessionId(),
+	route: window.location.pathname
+}));
+
+logger.info('User clicked button', { buttonId: 'submit-form' });
+logger.error('Failed to load data', { userId: '123' });
 ```
 
 #### Configuration Options
@@ -75,14 +78,16 @@ Logger.error('Failed to load data', { userId: '123' });
 | `bufferSize`          | `10`              | Max logs to buffer before sending                                   |
 | `bufferFlushInterval` | `30`              | Interval (seconds) to auto-flush buffered logs                      |
 | `logEndpoint`         | `'/logger/write'` | Server endpoint path for logs (full URL: `serverUrl + logEndpoint`) |
-| `getUserData`         | `undefined`       | Function returning user-specific metadata for all logs              |
 
 Features:
 
-- Automatic `window.onerror` capture with full context
+- Automatic `window.onerror` and `unhandledrejection` capture
 - Logs buffered and sent in batches to reduce network overhead
-- Includes `credentials: 'include'` for authenticated requests
-- Important: Initialize before logging anything
+- Immediate flush on `warn`/`error` (debounced to collapse error storms)
+- Flushes on page unload via `navigator.sendBeacon` — no logs lost on navigation
+- Restores logs to buffer on network failure
+- `addPayloadBuilder()` — register functions that inject ambient metadata into every log
+- `flush()` — manually drain the buffer (useful before logout or in tests)
 
 ## Web Framework Usage
 
@@ -211,15 +216,25 @@ When request logging is enabled:
 
 ### Testing
 
-Unit tests use [Vitest](https://vitest.dev/) and cover:
-
-- `attachLogContext` – async context isolation and metadata propagation
-- `setLogMetadata` – merging and context scoping
-- `createLogger` – config, levels, default metadata
-- `applyExpressLogger` / `applyFastifyLogger` – middleware, client logs route, exclude paths
-- `applyExpressNestLogger` / `applyFastifyNestLogger` – interceptor registration
+Tests use [Vitest](https://vitest.dev/) and are organized by package:
 
 ```bash
-npm test            # run once
-npm run test:watch  # watch mode
+npm test
+```
+
+### Local Validation
+
+To test the package in a real project before publishing, use `npm pack` to create a local artifact:
+
+```bash
+# In this repo
+npm pack
+# Produces: yagelhayun-logger-x.x.x.tgz
+```
+
+Then install it directly in your target project:
+
+```bash
+# In your project
+npm install /path/to/yagelhayun-logger-x.x.x.tgz
 ```

@@ -1,9 +1,14 @@
 import { z } from 'zod';
 import { clientLogSchema } from '../common/consts';
+import type { LogLevel } from '../common/types';
 
 /**
- * Configuration for the client logger.
+ * A function that returns ambient metadata to be merged into every log's payload.
+ * Multiple builders can be registered and their results are merged in registration order.
+ * Call-site payload always takes precedence over builder output.
  */
+export type PayloadBuilder = () => Record<string, any>;
+
 export type LoggerConfig = {
 	/**
 	 * Maximum number of logs to buffer before sending.
@@ -18,15 +23,29 @@ export type LoggerConfig = {
 	 */
 	bufferFlushInterval: number;
 	/**
-	 * Endpoint path for sending logs. Combined with server URL in `initialize()`.
+	 * Endpoint path for sending logs. Combined with server URL in `createLogger()`.
 	 *
 	 * @default '/logger/write'
 	 */
 	logEndpoint: string;
+};
+
+export type Logger = {
+	verbose(message: string, payload?: Record<string, any>): void;
+	debug(message: string, payload?: Record<string, any>): void;
+	info(message: string, payload?: Record<string, any>): void;
+	warn(message: string, payload?: Record<string, any>): void;
+	error(message: string, payload?: Record<string, any>): void;
+	log(level: LogLevel, message: string, payload?: Record<string, any>): void;
 	/**
-	 * Function that returns user-specific data to append to all logs.
+	 * Registers a builder function that contributes ambient metadata to every log.
+	 * Call-site payload takes precedence over builder output.
 	 */
-	getUserData?: () => any | undefined;
+	addPayloadBuilder(builder: PayloadBuilder): void;
+	/**
+	 * Immediately flushes all buffered logs to the server.
+	 */
+	flush(): void;
 };
 
 /**

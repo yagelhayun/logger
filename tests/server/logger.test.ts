@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { createTestLogger, CaptureTransport } from './helpers';
-import { createLogger } from '../lib/server/logger';
+import { createTestLogger, CaptureTransport } from '../helpers';
+import { createLogger } from '../../lib/server/logger';
 import { transports } from 'winston';
 
 const REDACTED = '[REDACTED]';

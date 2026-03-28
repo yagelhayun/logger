@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { attachLogContext } from '../lib/server/async_hooks';
-import { setLogMetadata, getLogMetadata } from '../lib/server/logger/metadata';
-import { createTestLogger } from './helpers';
+import { attachLogContext } from '../../lib/server/async_hooks';
+import { setLogMetadata, getLogMetadata } from '../../lib/server/logger/metadata';
+import { createTestLogger } from '../helpers';
 
 describe('attachLogContext', () => {
 	it('runs callback synchronously', () => {

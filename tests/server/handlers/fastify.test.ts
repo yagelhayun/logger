@@ -1,32 +1,35 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import express, { type Application } from 'express';
-import request from 'supertest';
-import { applyExpressLogger } from '../lib/server/handlers/express';
-import { createTestLogger } from './helpers';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import Fastify, { type FastifyInstance } from 'fastify';
+import { applyFastifyLogger } from '../../../lib/server/handlers/fastify';
+import { createTestLogger } from '../../helpers';
 
-describe('applyExpressLogger', () => {
-	let app: Application;
+describe('applyFastifyLogger', () => {
+	let app: FastifyInstance;
 	let logger: ReturnType<typeof createTestLogger>['logger'];
 	let capture: ReturnType<typeof createTestLogger>['capture'];
 
-	beforeEach(() => {
-		app = express();
-		app.use(express.json());
+	beforeEach(async () => {
+		app = Fastify();
 		const testLogger = createTestLogger();
 		logger = testLogger.logger;
 		capture = testLogger.capture;
 	});
 
+	afterEach(async () => {
+		await app.close();
+	});
+
 	describe('request metadata', () => {
 		it('sets requestId and request metadata on every log within a request', async () => {
-			applyExpressLogger(app, logger, { middleware: { enableRequestLogging: false } });
+			applyFastifyLogger(app, logger, { middleware: { enableRequestLogging: false } });
 
-			app.get('/test', (_req, res) => {
+			app.get('/test', async (_request, reply) => {
 				logger.info('in-handler');
-				res.status(200).send('ok');
+				return reply.status(200).send('ok');
 			});
 
-			await request(app).get('/test').expect(200);
+			const res = await app.inject({ method: 'GET', url: '/test' });
+			expect(res.statusCode).toBe(200);
 
 			const log = capture.getLogs().find((l) => l.message === 'in-handler') as any;
 			expect(log.requestId).toBeDefined();
@@ -34,16 +37,16 @@ describe('applyExpressLogger', () => {
 		});
 
 		it('uses a custom requestIdLogLabel', async () => {
-			applyExpressLogger(app, logger, {
+			applyFastifyLogger(app, logger, {
 				middleware: { enableRequestLogging: false, requestIdLogLabel: 'traceId' }
 			});
 
-			app.get('/test', (_req, res) => {
+			app.get('/test', async (_request, reply) => {
 				logger.info('handler');
-				res.send('ok');
+				return reply.send('ok');
 			});
 
-			await request(app).get('/test').expect(200);
+			await app.inject({ method: 'GET', url: '/test' });
 
 			const log = capture.getLogs().find((l) => l.message === 'handler') as any;
 			expect(log.traceId).toBeDefined();
@@ -51,54 +54,62 @@ describe('applyExpressLogger', () => {
 		});
 
 		it('uses a custom requestId from getRequestId', async () => {
-			applyExpressLogger(app, logger, {
+			applyFastifyLogger(app, logger, {
 				middleware: {
 					enableRequestLogging: false,
 					getRequestId: (req) => req.headers['x-request-id'] as string
 				}
 			});
 
-			app.get('/test', (_req, res) => {
+			app.get('/test', async (_request, reply) => {
 				logger.info('handler');
-				res.send('ok');
+				return reply.send('ok');
 			});
 
-			await request(app).get('/test').set('x-request-id', 'my-trace-id').expect(200);
+			await app.inject({
+				method: 'GET',
+				url: '/test',
+				headers: { 'x-request-id': 'my-trace-id' }
+			});
 
 			const log = capture.getLogs().find((l) => l.message === 'handler') as any;
 			expect(log.requestId).toBe('my-trace-id');
 		});
 
 		it('includes customProps in all logs within the request', async () => {
-			applyExpressLogger(app, logger, {
+			applyFastifyLogger(app, logger, {
 				middleware: {
 					enableRequestLogging: false,
 					customProps: (req) => ({ tenantId: req.headers['x-tenant-id'] })
 				}
 			});
 
-			app.get('/test', (_req, res) => {
+			app.get('/test', async (_request, reply) => {
 				logger.info('handler');
-				res.send('ok');
+				return reply.send('ok');
 			});
 
-			await request(app).get('/test').set('x-tenant-id', 'tenant-abc').expect(200);
+			await app.inject({
+				method: 'GET',
+				url: '/test',
+				headers: { 'x-tenant-id': 'tenant-abc' }
+			});
 
 			const log = capture.getLogs().find((l) => l.message === 'handler') as any;
 			expect(log.tenantId).toBe('tenant-abc');
 		});
 
 		it('omits request metadata when enableRequestMetadata is false', async () => {
-			applyExpressLogger(app, logger, {
+			applyFastifyLogger(app, logger, {
 				middleware: { enableRequestLogging: false, enableRequestMetadata: false }
 			});
 
-			app.get('/test', (_req, res) => {
+			app.get('/test', async (_request, reply) => {
 				logger.info('handler');
-				res.send('ok');
+				return reply.send('ok');
 			});
 
-			await request(app).get('/test').expect(200);
+			await app.inject({ method: 'GET', url: '/test' });
 
 			const log = capture.getLogs().find((l) => l.message === 'handler') as any;
 			expect(log.request).toBeUndefined();
@@ -107,11 +118,11 @@ describe('applyExpressLogger', () => {
 
 	describe('request lifecycle logging', () => {
 		it('logs request start and finish with status code and duration', async () => {
-			applyExpressLogger(app, logger, { middleware: { enableRequestLogging: true } });
+			applyFastifyLogger(app, logger, { middleware: { enableRequestLogging: true } });
 
-			app.get('/test', (_req, res) => res.status(201).send('ok'));
+			app.get('/test', async (_request, reply) => reply.status(201).send('ok'));
 
-			await request(app).get('/test').expect(201);
+			await app.inject({ method: 'GET', url: '/test' });
 
 			const logs = capture.getLogs();
 			const startLog = logs.find((l) => l.message === 'Request started');
@@ -124,7 +135,7 @@ describe('applyExpressLogger', () => {
 		});
 
 		it('uses custom received and finished messages', async () => {
-			applyExpressLogger(app, logger, {
+			applyFastifyLogger(app, logger, {
 				middleware: {
 					enableRequestLogging: true,
 					customReceivedMessage: 'Incoming!',
@@ -132,9 +143,9 @@ describe('applyExpressLogger', () => {
 				}
 			});
 
-			app.get('/test', (_req, res) => res.send('ok'));
+			app.get('/test', async (_request, reply) => reply.send('ok'));
 
-			await request(app).get('/test').expect(200);
+			await app.inject({ method: 'GET', url: '/test' });
 
 			const messages = capture.getLogs().map((l) => l.message);
 			expect(messages).toContain('Incoming!');
@@ -142,11 +153,11 @@ describe('applyExpressLogger', () => {
 		});
 
 		it('does not log lifecycle events when enableRequestLogging is false', async () => {
-			applyExpressLogger(app, logger, { middleware: { enableRequestLogging: false } });
+			applyFastifyLogger(app, logger, { middleware: { enableRequestLogging: false } });
 
-			app.get('/test', (_req, res) => res.send('ok'));
+			app.get('/test', async (_request, reply) => reply.send('ok'));
 
-			await request(app).get('/test').expect(200);
+			await app.inject({ method: 'GET', url: '/test' });
 
 			const messages = capture.getLogs().map((l) => l.message);
 			expect(messages).not.toContain('Request started');
@@ -154,15 +165,15 @@ describe('applyExpressLogger', () => {
 		});
 
 		it('excludes configured paths from lifecycle logging', async () => {
-			applyExpressLogger(app, logger, {
+			applyFastifyLogger(app, logger, {
 				middleware: { excludePaths: ['/health'], enableRequestLogging: true }
 			});
 
-			app.get('/health', (_req, res) => res.send('ok'));
-			app.get('/api', (_req, res) => res.send('ok'));
+			app.get('/health', async (_request, reply) => reply.send('ok'));
+			app.get('/api', async (_request, reply) => reply.send('ok'));
 
-			await request(app).get('/health').expect(200);
-			await request(app).get('/api').expect(200);
+			await app.inject({ method: 'GET', url: '/health' });
+			await app.inject({ method: 'GET', url: '/api' });
 
 			const startLogs = capture.getLogs().filter((l) => l.message === 'Request started');
 			expect(startLogs.length).toBe(1);
@@ -171,34 +182,44 @@ describe('applyExpressLogger', () => {
 
 	describe('client logs route', () => {
 		it('accepts a valid client log payload and returns 200', async () => {
-			applyExpressLogger(app, logger, {
+			applyFastifyLogger(app, logger, {
 				route: { endpoint: '/custom/logs' },
 				middleware: {}
 			});
 
-			const res = await request(app)
-				.post('/custom/logs')
-				.send([
+			const res = await app.inject({
+				method: 'POST',
+				url: '/custom/logs',
+				payload: [
 					{
 						level: 'info',
 						message: 'client log',
 						timestamp: new Date().toISOString(),
 						metadata: {}
 					}
-				])
-				.expect(200);
+				],
+				headers: { 'content-type': 'application/json' }
+			});
 
-			expect(res.text).toBe('OK');
+			expect(res.statusCode).toBe(200);
+			expect(res.payload).toBe('OK');
 			expect(capture.getLogs().some((l) => l.message === 'client log')).toBe(true);
 		});
 
 		it('logs the validation error and still returns 200 for an invalid payload', async () => {
-			applyExpressLogger(app, logger, {
+			applyFastifyLogger(app, logger, {
 				route: { endpoint: '/logs' },
 				middleware: {}
 			});
 
-			await request(app).post('/logs').send([{ invalid: 'payload' }]).expect(200);
+			const res = await app.inject({
+				method: 'POST',
+				url: '/logs',
+				payload: [{ invalid: 'payload' }],
+				headers: { 'content-type': 'application/json' }
+			});
+
+			expect(res.statusCode).toBe(200);
 
 			// printClientLogs catches the ZodError and logs it — this is intentional.
 			const errorLog = capture.getLogs().find((l) => l.level === 'error') as any;
