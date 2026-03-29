@@ -36,6 +36,14 @@ export const serializeError = (error: unknown): Record<string, any> => {
  * Returns a debounced version of the provided function using a microtask,
  * collapsing synchronous bursts into a single call.
  *
+ * Used for auto-flush on warn/error: if multiple errors fire synchronously
+ * (e.g. an error storm), this ensures only one HTTP request is made instead
+ * of one per error call.
+ *
+ * Uses a microtask (Promise.resolve) rather than setTimeout so the flush
+ * fires immediately after the synchronous burst settles, without yielding
+ * to the event loop.
+ *
  * @internal
  */
 export const createDebouncedFlush = (flush: () => void): (() => void) => {
