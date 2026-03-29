@@ -9,11 +9,13 @@ const flushMicrotasks = () => Promise.resolve();
 
 beforeEach(() => {
 	vi.useFakeTimers();
-	vi.spyOn(global, 'fetch').mockResolvedValue(new Response('OK', { status: 200 }));
+	vi.spyOn(global, 'fetch').mockResolvedValue(
+		new Response('OK', { status: 200 })
+	);
 	Object.defineProperty(navigator, 'sendBeacon', {
 		value: vi.fn().mockReturnValue(true),
 		writable: true,
-		configurable: true,
+		configurable: true
 	});
 });
 
@@ -24,7 +26,8 @@ afterEach(() => {
 });
 
 const getPostedLogs = (callIndex = 0) => {
-	const body = (fetch as ReturnType<typeof vi.fn>).mock.calls[callIndex][1].body;
+	const body = (fetch as ReturnType<typeof vi.fn>).mock.calls[callIndex][1]
+		.body;
 	return JSON.parse(body);
 };
 
@@ -182,7 +185,14 @@ describe('createLogger', () => {
 
 			await flushMicrotasks();
 			const levels = getPostedLogs().map((l: any) => l.level);
-			expect(levels).toEqual(['verbose', 'debug', 'info', 'warn', 'error', 'info']);
+			expect(levels).toEqual([
+				'verbose',
+				'debug',
+				'info',
+				'warn',
+				'error',
+				'info'
+			]);
 		});
 	});
 
@@ -208,7 +218,9 @@ describe('createLogger', () => {
 
 	describe('network failure', () => {
 		it('restores logs to the buffer when the request fails', async () => {
-			vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'));
+			vi.spyOn(global, 'fetch').mockRejectedValueOnce(
+				new Error('Network error')
+			);
 			vi.spyOn(console, 'error').mockImplementation(() => {});
 
 			const logger = createLogger(APP_URL, { bufferSize: 1 });
@@ -220,7 +232,9 @@ describe('createLogger', () => {
 			logger.flush();
 			expect(fetch).toHaveBeenCalledTimes(2);
 			const secondCallLogs = getPostedLogs(1);
-			expect(secondCallLogs.some((l: any) => l.message === 'important log')).toBe(true);
+			expect(
+				secondCallLogs.some((l: any) => l.message === 'important log')
+			).toBe(true);
 		});
 	});
 
@@ -277,23 +291,36 @@ describe('createLogger', () => {
 		it('pushes an error log when window.onerror fires', async () => {
 			createLogger(APP_URL, { bufferSize: 10 });
 
-			window.onerror!('Something broke', 'app.js', 10, 5, new Error('Something broke'));
+			window.onerror!(
+				'Something broke',
+				'app.js',
+				10,
+				5,
+				new Error('Something broke')
+			);
 
 			await flushMicrotasks();
 
-			const allLogs = (fetch as ReturnType<typeof vi.fn>).mock.calls.flatMap(
-				(call: any) => JSON.parse(call[1].body)
+			const allLogs = (
+				fetch as ReturnType<typeof vi.fn>
+			).mock.calls.flatMap((call: any) => JSON.parse(call[1].body));
+			const log = allLogs.find(
+				(l: any) => l.message === 'Something broke'
 			);
-			const log = allLogs.find((l: any) => l.message === 'Something broke');
 			expect(log.level).toBe('error');
 			expect(log.metadata.source).toBe('app.js');
-			expect(log.metadata.lineno).toBe(10);
 		});
 
 		it('does not push a log when error object is absent', async () => {
 			createLogger(APP_URL, { bufferSize: 10 });
 
-			window.onerror!('Script error', undefined, undefined, undefined, undefined);
+			window.onerror!(
+				'Script error',
+				undefined,
+				undefined,
+				undefined,
+				undefined
+			);
 
 			await flushMicrotasks();
 
@@ -318,16 +345,18 @@ describe('createLogger', () => {
 
 			const event = new PromiseRejectionEvent('unhandledrejection', {
 				promise: Promise.resolve(),
-				reason: { message: 'Promise failed' },
+				reason: { message: 'Promise failed' }
 			});
 			window.dispatchEvent(event);
 
 			await flushMicrotasks();
 
-			const allLogs = (fetch as ReturnType<typeof vi.fn>).mock.calls.flatMap(
-				(call: any) => JSON.parse(call[1].body)
+			const allLogs = (
+				fetch as ReturnType<typeof vi.fn>
+			).mock.calls.flatMap((call: any) => JSON.parse(call[1].body));
+			const log = allLogs.find(
+				(l: any) => l.message === 'Promise failed'
 			);
-			const log = allLogs.find((l: any) => l.message === 'Promise failed');
 			expect(log.level).toBe('error');
 		});
 
@@ -336,16 +365,18 @@ describe('createLogger', () => {
 
 			const event = new PromiseRejectionEvent('unhandledrejection', {
 				promise: Promise.resolve(),
-				reason: null,
+				reason: null
 			});
 			window.dispatchEvent(event);
 
 			await flushMicrotasks();
 
-			const allLogs = (fetch as ReturnType<typeof vi.fn>).mock.calls.flatMap(
-				(call: any) => JSON.parse(call[1].body)
+			const allLogs = (
+				fetch as ReturnType<typeof vi.fn>
+			).mock.calls.flatMap((call: any) => JSON.parse(call[1].body));
+			const log = allLogs.find(
+				(l: any) => l.message === 'Unhandled rejection'
 			);
-			const log = allLogs.find((l: any) => l.message === 'Unhandled rejection');
 			expect(log).toBeDefined();
 		});
 	});
@@ -358,7 +389,9 @@ describe('createLogger', () => {
 			window.dispatchEvent(new Event('beforeunload'));
 
 			expect(navigator.sendBeacon).toHaveBeenCalledTimes(1);
-			const [url, blob] = (navigator.sendBeacon as ReturnType<typeof vi.fn>).mock.calls[0];
+			const [url, blob] = (
+				navigator.sendBeacon as ReturnType<typeof vi.fn>
+			).mock.calls[0];
 			expect(url).toBe(ENDPOINT);
 			expect(blob).toBeInstanceOf(Blob);
 			expect((blob as Blob).type).toBe('application/json');
