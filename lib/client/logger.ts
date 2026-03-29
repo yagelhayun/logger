@@ -1,26 +1,11 @@
 import type { Log, LoggerConfig, Logger, PayloadBuilder } from './types';
 import type { LogLevel } from '../common/types';
-import { CLIENT_LOGS_ENDPOINT } from '../common/consts';
-
-const AUTO_FLUSH_LEVELS: LogLevel[] = ['warn', 'error'];
-
-const defaultConfig: LoggerConfig = {
-	bufferSize: 10,
-	bufferFlushInterval: 30,
-	logEndpoint: CLIENT_LOGS_ENDPOINT
-};
-
-const createDebouncedFlush = (flush: () => void): (() => void) => {
-	let pending = false;
-	return () => {
-		if (pending) return;
-		pending = true;
-		Promise.resolve().then(() => {
-			pending = false;
-			flush();
-		});
-	};
-};
+import {
+	AUTO_FLUSH_LEVELS,
+	defaultConfig,
+	serializeError,
+	createDebouncedFlush
+} from './utils';
 
 export const createLogger = (
 	appUrl: string,
@@ -74,7 +59,7 @@ export const createLogger = (
 			...(Object.keys(metadata).length && { metadata })
 		});
 
-		if (buffer.length > bufferSize) {
+		if (buffer.length >= bufferSize) {
 			flush();
 		} else if (AUTO_FLUSH_LEVELS.includes(level)) {
 			debouncedFlush();
@@ -87,10 +72,8 @@ export const createLogger = (
 			previousOnError?.(message, source, lineno, colno, error);
 			if (error) {
 				push('error', String(message), {
-					error: JSON.stringify(error),
-					source,
-					lineno,
-					colno
+					error: serializeError(error),
+					source
 				});
 			}
 			return null;
@@ -100,7 +83,7 @@ export const createLogger = (
 			'unhandledrejection',
 			(event: PromiseRejectionEvent) => {
 				push('error', event.reason?.message ?? 'Unhandled rejection', {
-					error: JSON.stringify(event.reason)
+					error: serializeError(event.reason)
 				});
 			}
 		);
@@ -109,7 +92,9 @@ export const createLogger = (
 			if (buffer.length) {
 				navigator.sendBeacon(
 					endpoint,
-					new Blob([JSON.stringify(buffer.splice(0))], { type: 'application/json' })
+					new Blob([JSON.stringify(buffer.splice(0))], {
+						type: 'application/json'
+					})
 				);
 			}
 		});

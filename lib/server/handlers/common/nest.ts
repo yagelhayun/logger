@@ -85,20 +85,25 @@ export const applyNestLogger =
 		logger: Logger,
 		partialConfig?: WebFrameworkConfig<TReq>
 	) => {
+		const routeConfig: RouteConfig = {
+			...defaultRouteConfig,
+			...partialConfig?.route
+		};
+
 		const middlewareConfig: MiddlewareConfig = {
 			...defaultMiddlewareConfig,
-			...partialConfig?.middleware
+			...partialConfig?.middleware,
+			excludePaths: [
+				...defaultMiddlewareConfig.excludePaths,
+				...(partialConfig?.middleware?.excludePaths ?? []),
+				routeConfig.endpoint
+			]
 		};
 
 		const interceptor = new Interceptor(logger, middlewareConfig);
 		app.useGlobalInterceptors(interceptor);
 
 		if (partialConfig?.route) {
-			const routeConfig: RouteConfig = {
-				...defaultRouteConfig,
-				...partialConfig.route
-			};
-
 			const httpAdapter = app.getHttpAdapter();
 			httpAdapter.post(
 				routeConfig.endpoint,

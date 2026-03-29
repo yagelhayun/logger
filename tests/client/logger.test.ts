@@ -40,19 +40,18 @@ describe('createLogger', () => {
 			expect(fetch).not.toHaveBeenCalled();
 		});
 
-		it('flushes when buffer exceeds bufferSize', () => {
+		it('flushes when buffer reaches bufferSize', () => {
 			const logger = createLogger(APP_URL, { bufferSize: 2 });
 
 			logger.info('one');
-			logger.info('two');
 			expect(fetch).not.toHaveBeenCalled();
 
-			logger.info('three');
+			logger.info('two');
 			expect(fetch).toHaveBeenCalledTimes(1);
 		});
 
 		it('sends all buffered logs in a single request', () => {
-			const logger = createLogger(APP_URL, { bufferSize: 2 });
+			const logger = createLogger(APP_URL, { bufferSize: 3 });
 
 			logger.info('one');
 			logger.info('two');
@@ -63,7 +62,7 @@ describe('createLogger', () => {
 		});
 
 		it('clears the buffer after flushing', () => {
-			const logger = createLogger(APP_URL, { bufferSize: 2 });
+			const logger = createLogger(APP_URL, { bufferSize: 3 });
 
 			logger.info('one');
 			logger.info('two');
@@ -215,7 +214,6 @@ describe('createLogger', () => {
 			const logger = createLogger(APP_URL, { bufferSize: 1 });
 
 			logger.info('important log');
-			logger.info('trigger flush');
 
 			await flushMicrotasks(); // let the rejected promise settle
 

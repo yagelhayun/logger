@@ -85,9 +85,19 @@ export const applyFastifyLogger = (
 	logger: Logger,
 	partialConfig?: WebFrameworkConfig<FastifyRequest>
 ) => {
+	const routeConfig: RouteConfig = {
+		...defaultRouteConfig,
+		...partialConfig?.route
+	};
+
 	const middlewareConfig: MiddlewareConfig<FastifyRequest> = {
 		...defaultMiddlewareConfig,
-		...partialConfig?.middleware
+		...partialConfig?.middleware,
+		excludePaths: [
+			...defaultMiddlewareConfig.excludePaths,
+			...(partialConfig?.middleware?.excludePaths ?? []),
+			routeConfig.endpoint
+		]
 	};
 
 	app.addHook('onRequest', logContextMiddleware(middlewareConfig));
@@ -97,11 +107,6 @@ export const applyFastifyLogger = (
 	}
 
 	if (partialConfig?.route) {
-		const routeConfig: RouteConfig = {
-			...defaultRouteConfig,
-			...partialConfig?.route
-		};
-
 		app.post(routeConfig.endpoint, printClientLogs(logger, routeConfig));
 	}
 };

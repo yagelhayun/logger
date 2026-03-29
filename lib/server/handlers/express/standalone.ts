@@ -75,9 +75,19 @@ export const applyExpressLogger = (
 	logger: Logger,
 	partialConfig?: WebFrameworkConfig<ExpressRequest>
 ) => {
+	const routeConfig: RouteConfig = {
+		...defaultRouteConfig,
+		...partialConfig?.route
+	};
+
 	const middlewareConfig: MiddlewareConfig<ExpressRequest> = {
 		...defaultMiddlewareConfig,
-		...partialConfig?.middleware
+		...partialConfig?.middleware,
+		excludePaths: [
+			...defaultMiddlewareConfig.excludePaths,
+			...(partialConfig?.middleware?.excludePaths ?? []),
+			routeConfig.endpoint
+		]
 	};
 
 	app.use(logContextMiddleware(middlewareConfig));
@@ -87,11 +97,6 @@ export const applyExpressLogger = (
 	}
 
 	if (partialConfig?.route) {
-		const routeConfig: RouteConfig = {
-			...defaultRouteConfig,
-			...partialConfig?.route
-		};
-
 		app.post(routeConfig.endpoint, printClientLogs(logger, routeConfig));
 	}
 };
